@@ -58,7 +58,7 @@ export default function FloorPlan({
           <rect className="bldg-outline" x={4} y={4} width={width - 8} height={height - 8} rx={10} />
           <rect className="corridor" x={PAD} y={corridorY} width={width - PAD * 2} height={CORRIDOR_H} rx={6} />
           {rects.map(({ o, x, y, w, h }) => {
-            const price = officeListPrice(o.rate, furnished, cfg);
+            const price = officeListPrice(o.rate, false, cfg); // o.rate is already the furnishing-resolved base
             const isSel = selected.has(o.slug);
             const cls = `room${o.premium ? " prem" : ""}${o.taken ? " taken" : ""}${isSel ? " sel" : ""}`;
             return (

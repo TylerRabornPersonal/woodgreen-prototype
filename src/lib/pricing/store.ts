@@ -9,16 +9,18 @@ import { CONFIG, type EngineConfig } from "@/lib/engine";
 
 export type PricingOverrides = {
   officeRates: Record<string, number>; // slug -> unfurnished base $ /mo
+  officeFurnishedRates: Record<string, number>; // slug -> furnished base $ /mo (independent)
   multiPerOffice: number;
   multiCap: number;
   termDiscount: Record<number, number>;
   listMult: number;
-  furnishedMult: number;
+  furnishedMult: number; // only the default seed for furnished rates now
 };
 
 export function defaultOverrides(): PricingOverrides {
   return {
     officeRates: Object.fromEntries(OFFICES.map((o) => [o.slug, o.rate])),
+    officeFurnishedRates: Object.fromEntries(OFFICES.map((o) => [o.slug, Math.round(o.rate * CONFIG.furnishedMult)])),
     multiPerOffice: CONFIG.multiPerOffice,
     multiCap: CONFIG.multiCap,
     termDiscount: { ...CONFIG.termDiscount },
@@ -41,6 +43,7 @@ export function loadOverrides(): PricingOverrides {
       ...stored,
       // merge maps so newly-added offices/terms keep defaults
       officeRates: { ...base.officeRates, ...(stored.officeRates ?? {}) },
+      officeFurnishedRates: { ...base.officeFurnishedRates, ...(stored.officeFurnishedRates ?? {}) },
       termDiscount: { ...base.termDiscount, ...(stored.termDiscount ?? {}) },
     };
   } catch {
@@ -78,7 +81,17 @@ export function toEngineConfig(o: PricingOverrides): EngineConfig {
   };
 }
 
-/** Overridden base rate for an office slug (falls back to the provided default). */
+/** Overridden UNFURNISHED base rate for an office slug. */
 export function rateFor(o: PricingOverrides, slug: string, fallback: number): number {
   return o.officeRates[slug] ?? fallback;
+}
+
+/** Overridden FURNISHED base rate (defaults to unfurnished × furnished mult). */
+export function furnishedRateFor(o: PricingOverrides, slug: string, unfFallback: number): number {
+  return o.officeFurnishedRates[slug] ?? Math.round((o.officeRates[slug] ?? unfFallback) * o.furnishedMult);
+}
+
+/** Effective base rate for the chosen furnishing. The engine then applies list markup. */
+export function baseFor(o: PricingOverrides, slug: string, unfFallback: number, furnished: boolean): number {
+  return furnished ? furnishedRateFor(o, slug, unfFallback) : rateFor(o, slug, unfFallback);
 }

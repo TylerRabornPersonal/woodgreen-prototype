@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import FloorPlan from "./FloorPlan";
 import type { Floor, Office, AddOn } from "@/lib/inventory";
 import { quote, officeListPrice, addOnListPrice, money, type Term } from "@/lib/engine";
-import { defaultOverrides, loadOverrides, toEngineConfig, rateFor } from "@/lib/pricing/store";
+import { defaultOverrides, loadOverrides, toEngineConfig, baseFor } from "@/lib/pricing/store";
 
 export default function HomeExperience({
   floors,
@@ -22,13 +22,6 @@ export default function HomeExperience({
   useEffect(() => setOv(loadOverrides()), []);
   const cfg = useMemo(() => toEngineConfig(ov), [ov]);
 
-  // offices with operator-overridden base rates
-  const officesByFloorPriced = useMemo(
-    () => Object.fromEntries(Object.entries(officesByFloor).map(([k, v]) => [k, v.map((o) => ({ ...o, rate: rateFor(ov, o.slug, o.rate) }))])),
-    [officesByFloor, ov],
-  );
-  const allOffices = useMemo(() => Object.values(officesByFloorPriced).flat(), [officesByFloorPriced]);
-
   const [activeFloor, setActiveFloor] = useState(floors[0]?.id);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [furnished, setFurnished] = useState(false);
@@ -36,6 +29,13 @@ export default function HomeExperience({
   const [addonSel, setAddonSel] = useState<Set<string>>(new Set());
 
   const floor = floors.find((f) => f.id === activeFloor) ?? floors[0];
+
+  // resolved base for the chosen furnishing (engine then applies list markup)
+  const officesByFloorBase = useMemo(
+    () => Object.fromEntries(Object.entries(officesByFloor).map(([k, v]) => [k, v.map((o) => ({ ...o, rate: baseFor(ov, o.slug, o.rate, furnished) }))])),
+    [officesByFloor, ov, furnished],
+  );
+  const allOfficesBase = useMemo(() => Object.values(officesByFloorBase).flat(), [officesByFloorBase]);
 
   const toggleOffice = (slug: string) =>
     setSelected((p) => {
@@ -50,7 +50,7 @@ export default function HomeExperience({
       return n;
     });
 
-  const chosenOffices = allOffices.filter((o) => selected.has(o.slug));
+  const chosenOffices = allOfficesBase.filter((o) => selected.has(o.slug));
   const chosenAddons = addOns.filter((a) => addonSel.has(a.slug));
 
   const q = useMemo(
@@ -58,7 +58,7 @@ export default function HomeExperience({
       quote({
         officeBaseRates: chosenOffices.map((o) => o.rate),
         addOnRates: chosenAddons.map((a) => a.rate),
-        furnished,
+        furnished: false,
         term,
       }, cfg),
     [chosenOffices, chosenAddons, furnished, term, cfg],
@@ -138,7 +138,7 @@ export default function HomeExperience({
             </div>
           </div>
 
-          <FloorPlan offices={officesByFloorPriced[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} cfg={cfg} />
+          <FloorPlan offices={officesByFloorBase[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} cfg={cfg} />
         </div>
       </section>
 
@@ -163,7 +163,7 @@ export default function HomeExperience({
                     <div className="kv" key={o.slug}>
                       <span className="k">{o.code}{o.name ? ` · ${o.name}` : ""} <span style={{ color: "var(--drab)" }}>· {o.sqft} SF</span></span>
                       <span className="v">
-                        {money(officeListPrice(o.rate, furnished, cfg))}/mo
+                        {money(officeListPrice(o.rate, false, cfg))}/mo
                         <button className="linex" onClick={() => toggleOffice(o.slug)} aria-label={`Remove ${o.code}`}>×</button>
                       </span>
                     </div>

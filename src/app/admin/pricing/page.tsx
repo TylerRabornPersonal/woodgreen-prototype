@@ -20,6 +20,7 @@ export default function PricingPage() {
   const [ov, setOv] = useState<PricingOverrides>(defaultOverrides());
   const [ready, setReady] = useState(false);
   const [bulk, setBulk] = useState("");
+  const [bulkTarget, setBulkTarget] = useState<"both" | "unf" | "furn">("both");
   const [flash, setFlash] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,15 +32,17 @@ export default function PricingPage() {
 
   const setRate = (slug: string, v: number) =>
     setOv((p) => ({ ...p, officeRates: { ...p.officeRates, [slug]: v } }));
+  const setFurnRate = (slug: string, v: number) =>
+    setOv((p) => ({ ...p, officeFurnishedRates: { ...p.officeFurnishedRates, [slug]: v } }));
 
   const applyBulk = () => {
     const pct = parseFloat(bulk);
     if (!pct) return;
+    const scale = (m: Record<string, number>) => Object.fromEntries(Object.entries(m).map(([k, v]) => [k, Math.round(v * (1 + pct / 100))]));
     setOv((p) => ({
       ...p,
-      officeRates: Object.fromEntries(
-        Object.entries(p.officeRates).map(([k, v]) => [k, Math.round(v * (1 + pct / 100))]),
-      ),
+      officeRates: bulkTarget !== "furn" ? scale(p.officeRates) : p.officeRates,
+      officeFurnishedRates: bulkTarget !== "unf" ? scale(p.officeFurnishedRates) : p.officeFurnishedRates,
     }));
     setBulk("");
   };
@@ -93,28 +96,44 @@ export default function PricingPage() {
       {/* per-office rates */}
       <div className="pcard">
         <div className="pcard-headrow">
-          <span className="pcard-eyebrow">Per-office base rate ($/mo, unfurnished)</span>
+          <span className="pcard-eyebrow">Per-office base rates ($/mo) — unfurnished &amp; furnished, independent</span>
           <div className="bulk">
             <input type="number" step="1" value={bulk} onChange={(e) => setBulk(e.target.value)} placeholder="e.g. 5" />
             <span className="bulk-pct">%</span>
+            <select value={bulkTarget} onChange={(e) => setBulkTarget(e.target.value as "both" | "unf" | "furn")}>
+              <option value="both">both</option>
+              <option value="unf">unfurnished</option>
+              <option value="furn">furnished</option>
+            </select>
             <button className="btn btn-ghost btn-sm" onClick={applyBulk}>Apply to all</button>
           </div>
         </div>
-        <p className="portal-note" style={{ marginTop: 0 }}>Base rate is what the engine marks up to the displayed list price. Use “Apply to all” to raise/lower every office at once.</p>
+        <p className="portal-note" style={{ marginTop: 0 }}>Each office has its own unfurnished and furnished base; the engine marks each up to the displayed list price. Bulk-adjust both or either with the dropdown.</p>
 
         {FLOOR_IDS.map((fid) => {
           const offices = OFFICES.filter((o) => o.floorId === fid);
           return (
             <div key={fid} className="price-floor">
               <h4 className="price-floor-h">{floorLabels[fid]}</h4>
-              <div className="rate-grid">
+              <div className="rate-grid wide">
                 {offices.map((o) => {
                   const rate = ov.officeRates[o.slug] ?? o.rate;
+                  const furn = ov.officeFurnishedRates[o.slug] ?? Math.round(rate * ov.furnishedMult);
                   return (
                     <div className="rate-cell" key={o.slug}>
                       <div className="rate-code">{o.code} <span className="rate-sf">{o.sqft} SF</span></div>
-                      <div className="rate-input"><span className="rate-dollar">$</span><input type="number" step="5" value={rate} onChange={(e) => setRate(o.slug, parseInt(e.target.value) || 0)} /></div>
-                      <div className="rate-preview">→ {money(officeListPrice(rate, false, cfg))}/mo list</div>
+                      <div className="rate-two">
+                        <div>
+                          <span className="rate-tag">Unfurnished</span>
+                          <div className="rate-input"><span className="rate-dollar">$</span><input type="number" step="5" value={rate} onChange={(e) => setRate(o.slug, parseInt(e.target.value) || 0)} /></div>
+                          <div className="rate-preview">→ {money(officeListPrice(rate, false, cfg))}/mo</div>
+                        </div>
+                        <div>
+                          <span className="rate-tag">Furnished</span>
+                          <div className="rate-input"><span className="rate-dollar">$</span><input type="number" step="5" value={furn} onChange={(e) => setFurnRate(o.slug, parseInt(e.target.value) || 0)} /></div>
+                          <div className="rate-preview">→ {money(officeListPrice(furn, false, cfg))}/mo</div>
+                        </div>
+                      </div>
                     </div>
                   );
                 })}

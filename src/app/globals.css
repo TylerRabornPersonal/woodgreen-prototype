@@ -602,6 +602,10 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .rate-input input{flex:1;border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:7px 9px;font-size:14px;font-weight:600;font-family:inherit;color:var(--walnut-800);width:100%}
 .rate-input input:focus{outline:none;border-color:var(--forest-600)}
 .rate-preview{font-size:11.5px;color:var(--forest-700);font-family:var(--font-display);font-style:italic}
+.rate-grid.wide{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.rate-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.rate-tag{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--drab);font-weight:600;display:block;margin-bottom:3px}
+.bulk select{border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:7px 9px;font-size:13px;font-family:inherit}
 
 /* tenant history */
 .hist-office,.hist-search{border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:8px 12px;font-size:13px;font-family:var(--font-body);color:var(--ink)}

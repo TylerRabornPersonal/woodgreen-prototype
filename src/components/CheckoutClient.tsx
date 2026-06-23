@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Office, AddOn } from "@/lib/inventory";
 import { quote, officeListPrice, addOnListPrice, money, type Term } from "@/lib/engine";
-import { defaultOverrides, loadOverrides, toEngineConfig, rateFor } from "@/lib/pricing/store";
+import { defaultOverrides, loadOverrides, toEngineConfig, baseFor } from "@/lib/pricing/store";
 import { formatPhone, isValidPhone, isValidEmail } from "@/lib/format";
 
 export default function CheckoutClient({
@@ -26,16 +26,16 @@ export default function CheckoutClient({
   useEffect(() => setOv(loadOverrides()), []);
   const cfg = useMemo(() => toEngineConfig(ov), [ov]);
 
-  const offices = useMemo(() => rawOffices.map((o) => ({ ...o, rate: rateFor(ov, o.slug, o.rate) })), [rawOffices, ov]);
+  const offices = useMemo(() => rawOffices.map((o) => ({ ...o, rate: baseFor(ov, o.slug, o.rate, furnished) })), [rawOffices, ov, furnished]);
   const chosen = useMemo(() => allAddOns.filter((a) => addOnSlugs.includes(a.slug)), [allAddOns, addOnSlugs]);
 
   const q = useMemo(
-    () => quote({ officeBaseRates: offices.map((o) => o.rate), addOnRates: chosen.map((a) => a.rate), furnished, term: term as Term }, cfg),
-    [offices, chosen, furnished, term, cfg],
+    () => quote({ officeBaseRates: offices.map((o) => o.rate), addOnRates: chosen.map((a) => a.rate), furnished: false, term: term as Term }, cfg),
+    [offices, chosen, term, cfg],
   );
 
   const lines = [
-    ...offices.map((o) => ({ label: `Office ${o.code}`, sub: `${o.sqft} SF · ${furnished ? "furnished" : "unfurnished"}`, price: officeListPrice(o.rate, furnished, cfg) })),
+    ...offices.map((o) => ({ label: `Office ${o.code}`, sub: `${o.sqft} SF · ${furnished ? "furnished" : "unfurnished"}`, price: officeListPrice(o.rate, false, cfg) })),
     ...chosen.map((a) => ({ label: a.name, sub: `${a.sqft} SF · add-on`, price: addOnListPrice(a.rate, cfg) })),
   ];
 

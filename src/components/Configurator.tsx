@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Office, AddOn } from "@/lib/inventory";
 import { quote, addOnListPrice, officeListPrice, money, type Term } from "@/lib/engine";
-import { defaultOverrides, loadOverrides, toEngineConfig, rateFor } from "@/lib/pricing/store";
+import { defaultOverrides, loadOverrides, toEngineConfig, baseFor } from "@/lib/pricing/store";
 
 export default function Configurator({ offices: rawOffices, addOns }: { offices: Office[]; addOns: AddOn[] }) {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function Configurator({ offices: rawOffices, addOns }: { offices:
   const [ov, setOv] = useState(defaultOverrides());
   useEffect(() => setOv(loadOverrides()), []);
   const cfg = useMemo(() => toEngineConfig(ov), [ov]);
-  const offices = useMemo(() => rawOffices.map((o) => ({ ...o, rate: rateFor(ov, o.slug, o.rate) })), [rawOffices, ov]);
+  const offices = useMemo(() => rawOffices.map((o) => ({ ...o, rate: baseFor(ov, o.slug, o.rate, furnished) })), [rawOffices, ov, furnished]);
   const pct = (n: number) => `−${(n * 100).toFixed(1)}%`;
 
   const toggle = (slug: string) =>
@@ -31,10 +31,10 @@ export default function Configurator({ offices: rawOffices, addOns }: { offices:
       quote({
         officeBaseRates: offices.map((o) => o.rate),
         addOnRates: chosenAddOns.map((a) => a.rate),
-        furnished,
+        furnished: false,
         term,
       }, cfg),
-    [offices, chosenAddOns, furnished, term, cfg],
+    [offices, chosenAddOns, term, cfg],
   );
 
   const proceed = () => {
@@ -59,7 +59,7 @@ export default function Configurator({ offices: rawOffices, addOns }: { offices:
                 {o.code}
                 {o.name ? ` · ${o.name}` : ""} <span style={{ color: "var(--drab)" }}>· {o.sqft} SF</span>
               </span>
-              <span className="v">{money(officeListPrice(o.rate, furnished, cfg))}/mo</span>
+              <span className="v">{money(officeListPrice(o.rate, false, cfg))}/mo</span>
             </div>
           ))}
         </div>
