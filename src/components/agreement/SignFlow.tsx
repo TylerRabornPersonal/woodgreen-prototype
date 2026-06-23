@@ -8,6 +8,7 @@ import { saveSession, type SessionLicense, type TenantSession } from "@/lib/port
 import type { Office, AddOn } from "@/lib/inventory";
 import { quote, officeListPrice, addOnListPrice, type Term } from "@/lib/engine";
 import { defaultOverrides, loadOverrides, toEngineConfig, rateFor } from "@/lib/pricing/store";
+import { processingFeeCents, feeLabel } from "@/lib/payments";
 
 export type PackagePart = Omit<
   ScheduleA,
@@ -110,6 +111,8 @@ export default function SignFlow({
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const monthName = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
   const dueToday = pkg.depositCents + pkg.totalFeeCents;
+  const feeCents = processingFeeCents(dueToday, payKind);
+  const grandTotal = dueToday + feeCents;
 
   const data: ScheduleA = useMemo(
     () => ({ ...pkg, legalName: form.legalName, entityType: form.entityType, primaryContact: form.primaryContact, primaryEmail: form.primaryEmail, isEntity }),
@@ -137,7 +140,7 @@ export default function SignFlow({
       license: portalLicense,
       confBank: { allotted: pkg.confHours, periodLabel: monthName },
       invoices: [
-        { id: "in_setup", number: `${pkg.licenseNumber}-01`, periodLabel: "First month + deposit", amountCents: dueToday, status: "paid", dateLabel: `Paid ${today}` },
+        { id: "in_setup", number: `${pkg.licenseNumber}-01`, periodLabel: "First month + deposit (incl. processing)", amountCents: grandTotal, status: "paid", dateLabel: `Paid ${today}` },
         { id: "in_cur", number: `${pkg.licenseNumber}-02`, periodLabel: monthName, amountCents: pkg.totalFeeCents, status: "due", dateLabel: "Due 1st" },
       ],
       paymentMethods: [
@@ -157,7 +160,7 @@ export default function SignFlow({
         <h2>You&apos;re all set</h2>
         <p className="lead" style={{ margin: "0 auto 6px" }}>
           {data.legalName} has signed the 25 Woodgreen License ({data.licenseNumber}) for {data.premises} and
-          paid {money(dueToday)} (first month + deposit). Your tenant portal is ready.
+          paid {money(grandTotal)} (first month + deposit + processing). Your tenant portal is ready.
         </p>
         <p className="placeholder-note">(Demo: signature and payment are simulated — no document filed, no card charged.)</p>
         <div style={{ marginTop: 22, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
@@ -230,7 +233,9 @@ export default function SignFlow({
           <div className="pay-summary">
             <div className="summary-line"><span>First month&apos;s License Fee</span><span>{money(pkg.totalFeeCents)}</span></div>
             <div className="summary-line"><span>Security deposit (one month)</span><span>{money(pkg.depositCents)}</span></div>
-            <div className="summary-line total"><span>Due today</span><span>{money(dueToday)}</span></div>
+            <div className="summary-line"><span>Subtotal</span><span>{money(dueToday)}</span></div>
+            <div className="summary-line"><span>{feeLabel(payKind)}</span><span>{money(feeCents)}</span></div>
+            <div className="summary-line total"><span>Total due today</span><span>{money(grandTotal)}</span></div>
           </div>
           <div className="seg" style={{ margin: "8px 0 12px" }}>
             <button className={payKind === "card" ? "on" : ""} onClick={() => setPayKind("card")}>Card</button>
@@ -240,7 +245,7 @@ export default function SignFlow({
           <div className="field"><label>{payKind === "card" ? "Expiry · CVC" : "Routing number"}</label><input value={payExtra} onChange={(e) => setPayExtra(e.target.value)} placeholder={payKind === "card" ? "12 / 28 · 123" : "062000019"} inputMode="numeric" /></div>
           <div className="sign-actions">
             <button className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
-            <button className="btn btn-pop" disabled={!payValid} onClick={finish}>Pay {money(dueToday)} &amp; finish</button>
+            <button className="btn btn-pop" disabled={!payValid} onClick={finish}>Pay {money(grandTotal)} &amp; finish</button>
           </div>
           <p className="portal-note" style={{ textAlign: "center" }}>🔒 Simulated on-site payment. In production this is Stripe&apos;s secure element — no real card is charged here.</p>
         </div>

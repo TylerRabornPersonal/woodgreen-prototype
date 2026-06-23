@@ -601,3 +601,16 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .rate-input input{flex:1;border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:7px 9px;font-size:14px;font-weight:600;font-family:inherit;color:var(--walnut-800);width:100%}
 .rate-input input:focus{outline:none;border-color:var(--forest-600)}
 .rate-preview{font-size:11.5px;color:var(--forest-700);font-family:var(--font-display);font-style:italic}
+
+/* tenant history */
+.hist-office,.hist-search{border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:8px 12px;font-size:13px;font-family:var(--font-body);color:var(--ink)}
+.hist-search{min-width:260px}
+.hist-office:focus,.hist-search:focus{outline:none;border-color:var(--forest-600)}
+.timeline{display:flex;flex-direction:column;margin-top:8px}
+.tl-row{display:flex;gap:14px;padding:10px 0;position:relative}
+.tl-row:not(:last-child)::before{content:"";position:absolute;left:6px;top:24px;bottom:-10px;width:2px;background:var(--linen)}
+.tl-dot{width:14px;height:14px;border-radius:50%;background:var(--sand);border:2px solid var(--linen);flex:none;margin-top:4px;z-index:1}
+.tl-row.current .tl-dot{background:var(--forest-600);border-color:var(--forest-700)}
+.tl-org{font-weight:600;color:var(--walnut-800)}
+.tl-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--forest-700);background:var(--forest-100);padding:2px 8px;border-radius:99px;margin-left:6px}
+.tl-meta{font-size:12.5px;color:var(--drab);margin-top:2px}

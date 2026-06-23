@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 const NAV = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/units", label: "Units" },
+  { href: "/admin/history", label: "Tenant history" },
   { href: "/admin/pricing", label: "Pricing" },
   { href: "/admin/payments", label: "Payments" },
   { href: "/admin/calendar", label: "Conference calendar" },
