@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import FloorPlan from "./FloorPlan";
 import type { Floor, Office, AddOn } from "@/lib/inventory";
 import { quote, officeListPrice, addOnListPrice, money, type Term } from "@/lib/engine";
+import { defaultOverrides, loadOverrides, toEngineConfig, rateFor } from "@/lib/pricing/store";
 
 export default function HomeExperience({
   floors,
@@ -16,7 +17,17 @@ export default function HomeExperience({
   addOns: AddOn[];
 }) {
   const router = useRouter();
-  const allOffices = useMemo(() => Object.values(officesByFloor).flat(), [officesByFloor]);
+
+  const [ov, setOv] = useState(defaultOverrides());
+  useEffect(() => setOv(loadOverrides()), []);
+  const cfg = useMemo(() => toEngineConfig(ov), [ov]);
+
+  // offices with operator-overridden base rates
+  const officesByFloorPriced = useMemo(
+    () => Object.fromEntries(Object.entries(officesByFloor).map(([k, v]) => [k, v.map((o) => ({ ...o, rate: rateFor(ov, o.slug, o.rate) }))])),
+    [officesByFloor, ov],
+  );
+  const allOffices = useMemo(() => Object.values(officesByFloorPriced).flat(), [officesByFloorPriced]);
 
   const [activeFloor, setActiveFloor] = useState(floors[0]?.id);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -49,8 +60,8 @@ export default function HomeExperience({
         addOnRates: chosenAddons.map((a) => a.rate),
         furnished,
         term,
-      }),
-    [chosenOffices, chosenAddons, furnished, term],
+      }, cfg),
+    [chosenOffices, chosenAddons, furnished, term, cfg],
   );
 
   const reserve = () => {
@@ -67,7 +78,7 @@ export default function HomeExperience({
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  const pct = (n: number) => `−${(n * 100).toFixed(0)}%`;
+  const pct = (n: number) => `−${(n * 100).toFixed(1)}%`;
 
   return (
     <div className="home">
@@ -127,7 +138,7 @@ export default function HomeExperience({
             </div>
           </div>
 
-          <FloorPlan offices={officesByFloor[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} />
+          <FloorPlan offices={officesByFloorPriced[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} cfg={cfg} />
         </div>
       </section>
 
@@ -152,7 +163,7 @@ export default function HomeExperience({
                     <div className="kv" key={o.slug}>
                       <span className="k">{o.code}{o.name ? ` · ${o.name}` : ""} <span style={{ color: "var(--drab)" }}>· {o.sqft} SF</span></span>
                       <span className="v">
-                        {money(officeListPrice(o.rate, furnished))}/mo
+                        {money(officeListPrice(o.rate, furnished, cfg))}/mo
                         <button className="linex" onClick={() => toggleOffice(o.slug)} aria-label={`Remove ${o.code}`}>×</button>
                       </span>
                     </div>
@@ -169,7 +180,7 @@ export default function HomeExperience({
                   return (
                     <div key={a.slug} className={`addon${sel ? " sel" : ""}`} onClick={() => toggleAddon(a.slug)}>
                       <div><div className="nm">{a.name}</div><div className="meta">{a.sqft} SF · flat rate</div></div>
-                      <div className="pr">{money(addOnListPrice(a.rate))}<span style={{ fontSize: 11, color: "var(--drab)", fontWeight: 400, fontStyle: "normal" }}>/mo</span></div>
+                      <div className="pr">{money(addOnListPrice(a.rate, cfg))}<span style={{ fontSize: 11, color: "var(--drab)", fontWeight: 400, fontStyle: "normal" }}>/mo</span></div>
                     </div>
                   );
                 })}

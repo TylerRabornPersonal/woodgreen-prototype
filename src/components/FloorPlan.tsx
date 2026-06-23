@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import type { Office } from "@/lib/inventory";
-import { officeListPrice, money } from "@/lib/engine";
+import { officeListPrice, money, CONFIG, type EngineConfig } from "@/lib/engine";
 
 /**
  * Placeholder 2D floor plan. Rooms are laid out along a central corridor in two
@@ -22,11 +22,13 @@ export default function FloorPlan({
   selected,
   onToggle,
   furnished = false,
+  cfg = CONFIG,
 }: {
   offices: Office[];
   selected: Set<string>;
   onToggle: (slug: string) => void;
   furnished?: boolean;
+  cfg?: EngineConfig;
 }) {
   const { rects, width, height } = useMemo(() => {
     const half = Math.ceil(offices.length / 2);
@@ -56,7 +58,7 @@ export default function FloorPlan({
           <rect className="bldg-outline" x={4} y={4} width={width - 8} height={height - 8} rx={10} />
           <rect className="corridor" x={PAD} y={corridorY} width={width - PAD * 2} height={CORRIDOR_H} rx={6} />
           {rects.map(({ o, x, y, w, h }) => {
-            const price = officeListPrice(o.rate, furnished);
+            const price = officeListPrice(o.rate, furnished, cfg);
             const isSel = selected.has(o.slug);
             const cls = `room${o.premium ? " prem" : ""}${o.taken ? " taken" : ""}${isSel ? " sel" : ""}`;
             return (

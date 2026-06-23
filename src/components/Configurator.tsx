@@ -1,15 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Office, AddOn } from "@/lib/inventory";
 import { quote, addOnListPrice, officeListPrice, money, type Term } from "@/lib/engine";
+import { defaultOverrides, loadOverrides, toEngineConfig, rateFor } from "@/lib/pricing/store";
 
-export default function Configurator({ offices, addOns }: { offices: Office[]; addOns: AddOn[] }) {
+export default function Configurator({ offices: rawOffices, addOns }: { offices: Office[]; addOns: AddOn[] }) {
   const router = useRouter();
   const [furnished, setFurnished] = useState(false);
   const [term, setTerm] = useState<Term>(12);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [ov, setOv] = useState(defaultOverrides());
+  useEffect(() => setOv(loadOverrides()), []);
+  const cfg = useMemo(() => toEngineConfig(ov), [ov]);
+  const offices = useMemo(() => rawOffices.map((o) => ({ ...o, rate: rateFor(ov, o.slug, o.rate) })), [rawOffices, ov]);
+  const pct = (n: number) => `−${(n * 100).toFixed(1)}%`;
 
   const toggle = (slug: string) =>
     setSelected((prev) => {
@@ -27,8 +33,8 @@ export default function Configurator({ offices, addOns }: { offices: Office[]; a
         addOnRates: chosenAddOns.map((a) => a.rate),
         furnished,
         term,
-      }),
-    [offices, chosenAddOns, furnished, term],
+      }, cfg),
+    [offices, chosenAddOns, furnished, term, cfg],
   );
 
   const proceed = () => {
@@ -53,7 +59,7 @@ export default function Configurator({ offices, addOns }: { offices: Office[]; a
                 {o.code}
                 {o.name ? ` · ${o.name}` : ""} <span style={{ color: "var(--drab)" }}>· {o.sqft} SF</span>
               </span>
-              <span className="v">{money(officeListPrice(o.rate, furnished))}/mo</span>
+              <span className="v">{money(officeListPrice(o.rate, furnished, cfg))}/mo</span>
             </div>
           ))}
         </div>
@@ -76,7 +82,7 @@ export default function Configurator({ offices, addOns }: { offices: Office[]; a
         <span className="ctl-label">Add storage, conference &amp; more</span>
         <div className="addon-list">
           {addOns.map((a) => {
-            const price = addOnListPrice(a.rate);
+            const price = addOnListPrice(a.rate, cfg);
             const sel = selected.has(a.slug);
             return (
               <div key={a.slug} className={`addon${sel ? " sel" : ""}`} onClick={() => toggle(a.slug)}>
@@ -100,14 +106,14 @@ export default function Configurator({ offices, addOns }: { offices: Office[]; a
         <div className="kv"><span className="k">Package gross</span><span className="v">{money(q.grossMonthly)}/mo</span></div>
 
         <div style={{ margin: "12px 0 6px" }}>
-          <div className="disc-row"><span>Multi-office {q.capped ? "(cap 10%)" : ""}</span><span className="v">−{(q.multiDiscount * 100).toFixed(0)}%</span></div>
-          <div className="disc-row"><span>Term · {term}mo</span><span className="v">−{(q.termDiscount * 100).toFixed(0)}%</span></div>
+          <div className="disc-row"><span>Multi-office {q.capped ? "(cap)" : ""}</span><span className="v">{pct(q.multiDiscount)}</span></div>
+          <div className="disc-row"><span>Term · {term}mo</span><span className="v">{pct(q.termDiscount)}</span></div>
         </div>
 
         <div className="kv"><span className="k">Conference hrs / mo</span><span className="v">{q.confHours}</span></div>
 
         <div style={{ marginTop: 16 }}>
-          <div className="big">{money(q.netMonthly)}<small>/mo</small> <span className="pill">−{(q.totalDiscount * 100).toFixed(0)}%</span></div>
+          <div className="big">{money(q.netMonthly)}<small>/mo</small> <span className="pill">{pct(q.totalDiscount)}</span></div>
           <div className="yr">{money(q.annual)} / yr · {money(q.contractValue)} over {term} months</div>
         </div>
 

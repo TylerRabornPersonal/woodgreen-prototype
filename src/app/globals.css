@@ -580,3 +580,24 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .tr-contact{font-weight:400;color:var(--drab);font-size:12.5px}
 .tr-offices{font-size:13px;color:var(--walnut-700);margin-top:4px}
 .tr-notes{font-size:12.5px;color:var(--drab);font-style:italic;margin-top:3px}
+
+/* pricing matrix */
+.price-knobs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin:8px 0 4px}
+.knob{display:flex;flex-direction:column;gap:5px}
+.knob label{font-size:11px;color:var(--drab);font-weight:600}
+.knob input{border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:8px 10px;font-size:14px;font-family:var(--font-body);color:var(--ink);width:100%}
+.knob input:focus{outline:none;border-color:var(--forest-600)}
+.bulk{display:flex;align-items:center;gap:6px}
+.bulk input{width:70px;border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:7px 9px;font-size:13px;font-family:inherit}
+.bulk-pct{color:var(--drab);font-weight:600}
+.price-floor{margin-top:16px}
+.price-floor-h{font-family:var(--font-display);font-weight:400;font-size:16px;color:var(--walnut-800);margin:0 0 8px}
+.rate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.rate-cell{border:1px solid var(--linen);border-radius:var(--r-lg);padding:10px 12px;background:var(--ivory)}
+.rate-code{font-family:var(--font-display);font-size:15px;color:var(--walnut-800)}
+.rate-sf{font-size:11px;color:var(--drab);font-family:var(--font-body)}
+.rate-input{display:flex;align-items:center;gap:4px;margin:6px 0 4px}
+.rate-dollar{color:var(--drab);font-weight:600}
+.rate-input input{flex:1;border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:7px 9px;font-size:14px;font-weight:600;font-family:inherit;color:var(--walnut-800);width:100%}
+.rate-input input:focus{outline:none;border-color:var(--forest-600)}
+.rate-preview{font-size:11.5px;color:var(--forest-700);font-family:var(--font-display);font-style:italic}

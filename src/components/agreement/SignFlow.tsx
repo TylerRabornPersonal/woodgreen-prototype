@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AgreementDocument from "./AgreementDocument";
 import type { ScheduleA } from "@/lib/agreement/content";
 import { saveSession, type SessionLicense, type TenantSession } from "@/lib/portal/session";
+import type { Office, AddOn } from "@/lib/inventory";
+import { quote, officeListPrice, addOnListPrice, type Term } from "@/lib/engine";
+import { defaultOverrides, loadOverrides, toEngineConfig, rateFor } from "@/lib/pricing/store";
 
 export type PackagePart = Omit<
   ScheduleA,
@@ -19,14 +22,73 @@ const brandFromNumber = (d: string) => (d.startsWith("4") ? "Visa" : d.startsWit
 const STEPS = ["Your details", "Review", "Sign", "Payment"];
 
 export default function SignFlow({
-  pkg,
-  portalLicense,
+  offices: rawOffices,
+  chosenAddOns,
+  furnished,
+  term,
+  meta,
   prefill,
 }: {
-  pkg: PackagePart;
-  portalLicense: SessionLicense;
+  offices: Office[];
+  chosenAddOns: AddOn[];
+  furnished: boolean;
+  term: Term;
+  meta: { licenseNumber: string; commencement: string; expiration: string };
   prefill: { company: string; name: string; email: string };
 }) {
+  // operator pricing overrides
+  const [ov, setOv] = useState(defaultOverrides());
+  useEffect(() => setOv(loadOverrides()), []);
+  const cfg = useMemo(() => toEngineConfig(ov), [ov]);
+  const offices = useMemo(() => rawOffices.map((o) => ({ ...o, rate: rateFor(ov, o.slug, o.rate) })), [rawOffices, ov]);
+
+  const { pkg, portalLicense } = useMemo(() => {
+    const q = quote({ officeBaseRates: offices.map((o) => o.rate), addOnRates: chosenAddOns.map((a) => a.rate), furnished, term }, cfg);
+    const totalFeeCents = Math.round(q.netMonthly * 100);
+    const baseFeeCents = furnished
+      ? Math.round(quote({ officeBaseRates: offices.map((o) => o.rate), addOnRates: chosenAddOns.map((a) => a.rate), furnished: false, term }, cfg).netMonthly * 100)
+      : totalFeeCents;
+    const pkgV: PackagePart = {
+      licenseNumber: meta.licenseNumber,
+      premises: offices.map((o) => o.code).join(", "),
+      sqft: offices.reduce((s, o) => s + o.sqft, 0),
+      termMonths: term,
+      commencement: meta.commencement,
+      expiration: meta.expiration,
+      baseFeeCents,
+      furnitureFeeCents: Math.max(0, totalFeeCents - baseFeeCents),
+      totalFeeCents,
+      furnished,
+      confHours: q.confHours,
+      overageStdCents: cfg.overageStd * 100,
+      overageBoardroomCents: cfg.overageBoardroom * 100,
+      depositCents: totalFeeCents,
+    };
+    const licenseV: SessionLicense = {
+      number: meta.licenseNumber,
+      status: "Active",
+      furnished,
+      termMonths: term,
+      startDate: meta.commencement,
+      endDate: meta.expiration,
+      offices: offices.map((o) => ({ code: o.code, name: o.name, sqft: o.sqft, rate: o.rate })),
+      addOns: chosenAddOns.map((a) => ({ name: a.name, sqft: a.sqft, rate: a.rate })),
+      grossMonthlyCents: Math.round(q.grossMonthly * 100),
+      netMonthlyCents: totalFeeCents,
+      annualCents: Math.round(q.annual * 100),
+      contractValueCents: Math.round(q.contractValue * 100),
+      multiDiscount: q.multiDiscount,
+      termDiscount: q.termDiscount,
+      totalDiscount: q.totalDiscount,
+      depositCents: totalFeeCents,
+      lineItems: [
+        ...offices.map((o) => ({ label: `Office ${o.code}`, sub: `${o.sqft} SF · ${furnished ? "furnished" : "unfurnished"}`, cents: Math.round(officeListPrice(o.rate, furnished, cfg) * 100) })),
+        ...chosenAddOns.map((a) => ({ label: a.name, sub: `${a.sqft} SF · add-on`, cents: Math.round(addOnListPrice(a.rate, cfg) * 100) })),
+      ],
+    };
+    return { pkg: pkgV, portalLicense: licenseV };
+  }, [offices, chosenAddOns, furnished, term, cfg, meta]);
+
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     legalName: prefill.company,

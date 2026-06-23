@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getOfficeBySlug, getAddOns } from "@/lib/data";
-import { quote, officeListPrice, addOnListPrice, type Term } from "@/lib/engine";
-import CheckoutClient, { type CheckoutData, type LineItem } from "@/components/CheckoutClient";
+import CheckoutClient from "@/components/CheckoutClient";
 import type { Office } from "@/lib/inventory";
 
 export default async function CheckoutPage({
@@ -24,54 +23,17 @@ export default async function CheckoutPage({
   }
 
   const furnished = searchParams.furnished === "1";
-  const term = (Number(searchParams.term) || 12) as Term;
+  const term = Number(searchParams.term) || 12;
   const addOnSlugs = (searchParams.addons ?? "").split(",").filter(Boolean);
   const allAddOns = await getAddOns();
-  const chosen = allAddOns.filter((a) => addOnSlugs.includes(a.slug));
-
-  const q = quote({
-    officeBaseRates: offices.map((o) => o.rate),
-    addOnRates: chosen.map((a) => a.rate),
-    furnished,
-    term,
-  });
-
-  const lines: LineItem[] = [
-    ...offices.map((o) => ({
-      label: `Office ${o.code}`,
-      sub: `${o.sqft} SF · ${furnished ? "furnished" : "unfurnished"}`,
-      price: officeListPrice(o.rate, furnished),
-    })),
-    ...chosen.map((a) => ({ label: a.name, sub: `${a.sqft} SF · add-on`, price: addOnListPrice(a.rate) })),
-  ];
-
-  const data: CheckoutData = {
-    officeCodes: offices.map((o) => o.code),
-    officeSlugs: offices.map((o) => o.slug),
-    addOnSlugs: chosen.map((a) => a.slug),
-    term,
-    furnished,
-    lines,
-    grossMonthly: q.grossMonthly,
-    multiDiscount: q.multiDiscount,
-    termDiscount: q.termDiscount,
-    totalDiscount: q.totalDiscount,
-    netMonthly: q.netMonthly,
-    annual: q.annual,
-    contractValue: q.contractValue,
-    confHours: q.confHours,
-  };
-
   const configureHref = `/configure?offices=${offices.map((o) => o.slug).join(",")}`;
 
   return (
     <div className="wrap page">
-      <div className="breadcrumb">
-        <Link href={configureHref}>← Back to configure</Link>
-      </div>
+      <div className="breadcrumb"><Link href={configureHref}>← Back to configure</Link></div>
       <h2 className="section">Checkout</h2>
       <p className="lead">Review your package and reserve. Multi-office and term discounts are already applied.</p>
-      <CheckoutClient data={data} />
+      <CheckoutClient offices={offices} allAddOns={allAddOns} addOnSlugs={addOnSlugs} furnished={furnished} term={term} />
     </div>
   );
 }
