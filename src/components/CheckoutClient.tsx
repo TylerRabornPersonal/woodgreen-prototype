@@ -33,7 +33,7 @@ export default function CheckoutClient({ data }: { data: CheckoutData }) {
         <div className="check">✓</div>
         <h2>Reservation request received</h2>
         <p className="lead" style={{ margin: "0 auto 6px" }}>
-          Thanks, {form.name.split(" ")[0] || "there"} — we&apos;ve logged your request for{" "}
+          Thanks, {form.name.split(" ")[0] || "there"}, we&apos;ve logged your request for{" "}
           {data.officeCodes.length > 1
             ? `${data.officeCodes.length} offices (${data.officeCodes.join(", ")})`
             : `Office ${data.officeCodes[0]}`}{" "}
@@ -70,7 +70,7 @@ export default function CheckoutClient({ data }: { data: CheckoutData }) {
         <div className="summary-line total"><span>You pay / month</span><span>{money(data.netMonthly)}</span></div>
         <p className="footnote">
           {money(data.annual)} per year · {money(data.contractValue)} total contract value over {data.term} months.
-          List price — a starting point for negotiation.
+          List price, a starting point for negotiation.
         </p>
       </div>
 

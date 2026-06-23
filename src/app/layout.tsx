@@ -3,7 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "25 Woodgreen Place — Executive Suites",
+  title: "25 Woodgreen Place · Executive Suites",
   description: "Find your office at 25 Woodgreen Place, Madison MS. Pick a room, configure your term, reserve.",
 };
 

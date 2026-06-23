@@ -51,7 +51,7 @@ export default function PlanExplorer({
       <div className={`selbar${chosen.length ? " active" : ""}`}>
         <div className="wrap selbar-inner">
           {chosen.length === 0 ? (
-            <span className="selbar-empty">No offices selected yet — click rooms on any floor to build your package.</span>
+            <span className="selbar-empty">No offices selected yet. Click rooms on any floor to build your package.</span>
           ) : (
             <>
               <div className="selbar-count">

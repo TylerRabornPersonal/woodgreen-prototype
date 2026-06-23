@@ -33,7 +33,7 @@ export default async function ConfigurePage({
       <p className="lead">
         {offices.length === 1
           ? "One office selected. Choose your term and furnishing, add storage or a conference room, then reserve."
-          : `${offices.length} offices selected. Set the term and furnishing for the package and add any shared rooms — your multi-office discount is applied automatically.`}
+          : `${offices.length} offices selected. Set the term and furnishing for the package and add any shared rooms. Your multi-office discount is applied automatically.`}
       </p>
       <Configurator offices={offices} addOns={addOns} />
     </div>

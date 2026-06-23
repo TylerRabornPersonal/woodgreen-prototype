@@ -192,7 +192,8 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 /* hero — watercolor of the building under a left-weighted scrim (WCAG AA on left) */
 .home-hero{position:relative;color:var(--cream);padding:104px 0 108px;overflow:hidden;min-height:600px;display:flex;align-items:center;
   background:
-    linear-gradient(100deg, rgba(24,17,10,.94) 0%, rgba(24,17,10,.82) 40%, rgba(24,17,10,.50) 70%, rgba(24,17,10,.32) 100%),
+    radial-gradient(ellipse 78% 92% at 26% 52%, rgba(24,17,10,.55), transparent 72%),
+    linear-gradient(100deg, rgba(24,17,10,.30) 0%, rgba(24,17,10,.20) 55%, rgba(24,17,10,.10) 100%),
     url('/hero-building.jpg') center right / cover no-repeat,
     var(--walnut-900)}
 .home-hero:before{content:"";position:absolute;inset:0;pointer-events:none;
@@ -272,3 +273,27 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .footer-links a{font-size:13px;color:var(--linen);cursor:pointer}
 .footer-links a:hover{color:var(--brass-300)}
 .footer-bottom{font-size:12px;color:var(--stone-400);margin-top:18px}
+
+/* ever-present sticky calculator bar */
+.calcbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--forest-700);color:var(--cream);
+  border-top:3px solid var(--brass-600);box-shadow:0 -10px 34px rgba(24,17,10,.30)}
+.calcbar-inner{display:flex;align-items:center;gap:20px;padding:12px 22px;flex-wrap:wrap}
+.calcbar-empty{font-family:var(--font-display);font-style:italic;color:var(--forest-200);font-size:14px;padding:8px 0}
+.cb-col{display:flex;flex-direction:column;gap:1px}
+.cb-k{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--forest-200)}
+.cb-v{font-size:15px;font-weight:700;font-family:var(--font-display)}
+.cb-v.dim{color:#E7E0CF;font-weight:600}
+.cb-v.disc{color:var(--brass-300)}
+.cb-div{width:1px;align-self:stretch;background:rgba(255,255,255,.14)}
+.cb-total{margin-left:auto;text-align:right}
+.cb-total-k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--forest-200)}
+.cb-pill{display:inline-block;background:var(--brass-600);color:var(--walnut-900);font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;margin-left:6px}
+.cb-big{font-family:var(--font-display);font-size:30px;font-weight:400;color:#fff;line-height:1.05}
+.cb-sub{font-size:11px;color:var(--forest-200);margin-top:2px}
+.cb-btn{flex:none;margin-left:8px}
+.calcbar-spacer{height:84px}
+@media(max-width:760px){
+  .cb-div{display:none}
+  .cb-total{margin-left:0}
+  .calcbar-spacer{height:150px}
+}

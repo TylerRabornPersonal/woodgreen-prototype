@@ -114,7 +114,7 @@ export default function Configurator({ offices, addOns }: { offices: Office[]; a
         <button className="btn btn-pop" style={{ width: "100%", justifyContent: "center", marginTop: 18 }} onClick={proceed}>
           Reserve {q.officeCount > 1 ? "these offices" : "this office"} →
         </button>
-        <p className="placeholder-note" style={{ textAlign: "center" }}>List price — starting point for negotiation.</p>
+        <p className="placeholder-note" style={{ textAlign: "center" }}>List price, a starting point for negotiation.</p>
       </div>
     </div>
   );
