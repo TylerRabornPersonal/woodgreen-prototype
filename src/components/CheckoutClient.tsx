@@ -79,7 +79,7 @@ export default function CheckoutClient({ data }: { data: CheckoutData }) {
         <div className="field"><label>Your name</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Jane Doe" /></div>
         <div className="field"><label>Email</label><input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="jane@acme.com" /></div>
         <div className="field"><label>Phone (optional)</label><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="(601) 555-0100" /></div>
-        <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }} disabled={!valid} onClick={() => setSubmitted(true)}>
+        <button className="btn btn-pop" style={{ width: "100%", justifyContent: "center" }} disabled={!valid} onClick={() => setSubmitted(true)}>
           Submit reservation request
         </button>
         <p className="placeholder-note" style={{ textAlign: "center" }}>No payment taken in this prototype.</p>

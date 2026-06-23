@@ -14,11 +14,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="site-header">
           <div className="wrap">
             <Link href="/" className="brand">
-              <div className="mark">W</div>
-              <div>
-                <h1>25 Woodgreen Place</h1>
-                <div className="sub">Executive Suites · Madison, MS</div>
-              </div>
+              <span className="wm"><span className="n">25</span><span className="t">WOODGREEN</span></span>
+              <span className="sub">Executive Suites · Madison, Mississippi</span>
             </Link>
             <div className="nav-steps">Pick a room → configure → reserve</div>
           </div>
