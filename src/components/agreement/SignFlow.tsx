@@ -9,6 +9,22 @@ import type { Office, AddOn } from "@/lib/inventory";
 import { quote, officeListPrice, addOnListPrice, type Term } from "@/lib/engine";
 import { defaultOverrides, loadOverrides, toEngineConfig, rateFor } from "@/lib/pricing/store";
 import { processingFeeCents, feeLabel } from "@/lib/payments";
+import { formatPhone, isValidPhone, isValidEmail } from "@/lib/format";
+import MonthCalendar from "@/components/MonthCalendar";
+
+const pad = (n: number) => String(n).padStart(2, "0");
+const isoOf = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const fmtFull = (iso: string) => new Date(iso + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+function addBusinessDays(date: Date, n: number): Date {
+  const d = new Date(date);
+  let added = 0;
+  while (added < n) {
+    d.setDate(d.getDate() + 1);
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) added++;
+  }
+  return d;
+}
 
 export type PackagePart = Omit<
   ScheduleA,
@@ -34,14 +50,33 @@ export default function SignFlow({
   chosenAddOns: AddOn[];
   furnished: boolean;
   term: Term;
-  meta: { licenseNumber: string; commencement: string; expiration: string };
-  prefill: { company: string; name: string; email: string };
+  meta: { licenseNumber: string };
+  prefill: { company: string; name: string; email: string; phone: string };
 }) {
   // operator pricing overrides
   const [ov, setOv] = useState(defaultOverrides());
   useEffect(() => setOv(loadOverrides()), []);
   const cfg = useMemo(() => toEngineConfig(ov), [ov]);
   const offices = useMemo(() => rawOffices.map((o) => ({ ...o, rate: rateFor(ov, o.slug, o.rate) })), [rawOffices, ov]);
+
+  // move-in window: earliest 5 business days out, latest 30 calendar days out
+  const [moveWindow, setMoveWindow] = useState<{ min: string; max: string } | null>(null);
+  const [moveInISO, setMoveInISO] = useState("");
+  useEffect(() => {
+    const today = new Date();
+    const max = new Date(today);
+    max.setDate(max.getDate() + 30);
+    setMoveWindow({ min: isoOf(addBusinessDays(today, 5)), max: isoOf(max) });
+  }, []);
+
+  const commencement = moveInISO ? fmtFull(moveInISO) : "—";
+  const expiration = useMemo(() => {
+    if (!moveInISO) return "—";
+    const end = new Date(moveInISO + "T00:00:00");
+    end.setMonth(end.getMonth() + term);
+    end.setDate(end.getDate() - 1);
+    return fmtFull(isoOf(end));
+  }, [moveInISO, term]);
 
   const { pkg, portalLicense } = useMemo(() => {
     const q = quote({ officeBaseRates: offices.map((o) => o.rate), addOnRates: chosenAddOns.map((a) => a.rate), furnished, term }, cfg);
@@ -54,8 +89,8 @@ export default function SignFlow({
       premises: offices.map((o) => o.code).join(", "),
       sqft: offices.reduce((s, o) => s + o.sqft, 0),
       termMonths: term,
-      commencement: meta.commencement,
-      expiration: meta.expiration,
+      commencement,
+      expiration,
       baseFeeCents,
       furnitureFeeCents: Math.max(0, totalFeeCents - baseFeeCents),
       totalFeeCents,
@@ -70,8 +105,8 @@ export default function SignFlow({
       status: "Active",
       furnished,
       termMonths: term,
-      startDate: meta.commencement,
-      endDate: meta.expiration,
+      startDate: commencement,
+      endDate: expiration,
       offices: offices.map((o) => ({ code: o.code, name: o.name, sqft: o.sqft, rate: o.rate })),
       addOns: chosenAddOns.map((a) => ({ name: a.name, sqft: a.sqft, rate: a.rate })),
       grossMonthlyCents: Math.round(q.grossMonthly * 100),
@@ -88,7 +123,7 @@ export default function SignFlow({
       ],
     };
     return { pkg: pkgV, portalLicense: licenseV };
-  }, [offices, chosenAddOns, furnished, term, cfg, meta]);
+  }, [offices, chosenAddOns, furnished, term, cfg, meta, commencement, expiration]);
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
@@ -96,7 +131,7 @@ export default function SignFlow({
     entityType: "LLC",
     primaryContact: prefill.name,
     primaryEmail: prefill.email,
-    phone: "",
+    phone: prefill.phone,
     billing: "",
   });
   const [signName, setSignName] = useState("");
@@ -119,7 +154,9 @@ export default function SignFlow({
     [pkg, form, isEntity],
   );
 
-  const detailsValid = form.legalName.trim() && form.primaryContact.trim() && form.primaryEmail.trim();
+  const emailOk = isValidEmail(form.primaryEmail);
+  const phoneOk = isValidPhone(form.phone);
+  const detailsValid = !!(form.legalName.trim() && form.primaryContact.trim() && emailOk && phoneOk && moveInISO);
   const signValid =
     signName.trim().toLowerCase() === form.primaryContact.trim().toLowerCase() &&
     consent &&
@@ -182,15 +219,28 @@ export default function SignFlow({
       </div>
 
       {step === 0 && (
-        <div className="card panel sign-form">
-          <h3>Licensee details (Schedule A)</h3>
-          <div className="field"><label>Legal name (individual or entity)</label><input value={form.legalName} onChange={(e) => setForm({ ...form, legalName: e.target.value })} placeholder="Caldwell & Associates, PLLC" /></div>
-          <div className="field"><label>Entity type</label><select value={form.entityType} onChange={(e) => setForm({ ...form, entityType: e.target.value })}>{ENTITY_TYPES.map((t) => <option key={t}>{t}</option>)}</select></div>
-          <div className="field"><label>Primary contact</label><input value={form.primaryContact} onChange={(e) => setForm({ ...form, primaryContact: e.target.value })} placeholder="Jane Caldwell" /></div>
-          <div className="field"><label>Primary email</label><input type="email" value={form.primaryEmail} onChange={(e) => setForm({ ...form, primaryEmail: e.target.value })} placeholder="jane@firm.com" /></div>
-          <div className="field"><label>Phone (optional)</label><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="(601) 555-0100" /></div>
-          {isEntity && <p className="portal-note">As a business entity, signing requires a Personal Guaranty (Schedule C) from a principal.</p>}
-          <button className="btn btn-pop" disabled={!detailsValid} onClick={() => setStep(1)}>Review the agreement →</button>
+        <div className="detail-grid">
+          <div className="card panel sign-form">
+            <h3>Licensee details (Schedule A)</h3>
+            <div className="field"><label>Legal name (individual or entity)</label><input value={form.legalName} onChange={(e) => setForm({ ...form, legalName: e.target.value })} placeholder="Caldwell & Associates, PLLC" /></div>
+            <div className="field"><label>Entity type</label><select value={form.entityType} onChange={(e) => setForm({ ...form, entityType: e.target.value })}>{ENTITY_TYPES.map((t) => <option key={t}>{t}</option>)}</select></div>
+            <div className="field"><label>Primary contact</label><input value={form.primaryContact} onChange={(e) => setForm({ ...form, primaryContact: e.target.value })} placeholder="Jane Caldwell" /></div>
+            <div className="field"><label>Primary email</label><input type="email" value={form.primaryEmail} onChange={(e) => setForm({ ...form, primaryEmail: e.target.value })} placeholder="jane@firm.com" />{form.primaryEmail && !emailOk && <span className="field-err">Enter a valid email address</span>}</div>
+            <div className="field"><label>Phone</label><input value={form.phone} onChange={(e) => setForm({ ...form, phone: formatPhone(e.target.value) })} placeholder="(601) 555-0100" inputMode="tel" />{form.phone && !phoneOk && <span className="field-err">Enter a 10-digit phone number</span>}</div>
+            {isEntity && <p className="portal-note">As a business entity, signing requires a Personal Guaranty (Schedule C) from a principal.</p>}
+          </div>
+
+          <div className="card panel pricebox">
+            <h3>Move-in date</h3>
+            <p className="lead" style={{ fontSize: 12.5 }}>Choose your commencement date — earliest 5 business days out, latest 30 days out.</p>
+            {moveWindow ? (
+              <MonthCalendar minISO={moveWindow.min} maxISO={moveWindow.max} value={moveInISO} onChange={setMoveInISO} />
+            ) : (
+              <p className="portal-note">Loading calendar…</p>
+            )}
+            <p className="portal-note">{moveInISO ? <>Commencement <strong>{commencement}</strong> · expires {expiration}.</> : "Pick a date to set your license term."}</p>
+            <button className="btn btn-pop" style={{ width: "100%", justifyContent: "center", marginTop: 8 }} disabled={!detailsValid} onClick={() => setStep(1)}>Review the agreement →</button>
+          </div>
         </div>
       )}
 
