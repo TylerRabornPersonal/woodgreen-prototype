@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Office, AddOn } from "@/lib/inventory";
 import { quote, addOnListPrice, officeListPrice, money, type Term } from "@/lib/engine";
 
-export default function Configurator({ office, addOns }: { office: Office; addOns: AddOn[] }) {
+export default function Configurator({ offices, addOns }: { offices: Office[]; addOns: AddOn[] }) {
   const router = useRouter();
   const [furnished, setFurnished] = useState(false);
   const [term, setTerm] = useState<Term>(12);
@@ -23,17 +23,17 @@ export default function Configurator({ office, addOns }: { office: Office; addOn
   const q = useMemo(
     () =>
       quote({
-        officeBaseRates: [office.rate],
+        officeBaseRates: offices.map((o) => o.rate),
         addOnRates: chosenAddOns.map((a) => a.rate),
         furnished,
         term,
       }),
-    [office.rate, chosenAddOns, furnished, term],
+    [offices, chosenAddOns, furnished, term],
   );
 
   const proceed = () => {
     const params = new URLSearchParams({
-      office: office.slug,
+      offices: offices.map((o) => o.slug).join(","),
       furnished: furnished ? "1" : "0",
       term: String(term),
     });
@@ -45,9 +45,20 @@ export default function Configurator({ office, addOns }: { office: Office; addOn
     <div className="detail-grid">
       {/* left: configure */}
       <div className="card panel">
-        <h3>Configure your office</h3>
+        <h3>Your offices</h3>
+        <div className="office-lines">
+          {offices.map((o) => (
+            <div className="kv" key={o.slug}>
+              <span className="k">
+                {o.code}
+                {o.name ? ` · ${o.name}` : ""} <span style={{ color: "var(--drab)" }}>· {o.sqft} SF</span>
+              </span>
+              <span className="v">{money(officeListPrice(o.rate, furnished))}/mo</span>
+            </div>
+          ))}
+        </div>
 
-        <span className="ctl-label">Furnishing</span>
+        <span className="ctl-label">Furnishing (applies to all offices)</span>
         <div className="seg">
           <button className={!furnished ? "on" : ""} onClick={() => setFurnished(false)}>Unfurnished</button>
           <button className={furnished ? "on" : ""} onClick={() => setFurnished(true)}>Furnished</button>
@@ -73,7 +84,7 @@ export default function Configurator({ office, addOns }: { office: Office; addOn
                   <div className="nm">{a.name}</div>
                   <div className="meta">{a.sqft} SF · flat rate</div>
                 </div>
-                <div className="pr">{money(price)}<span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 400 }}>/mo</span></div>
+                <div className="pr">{money(price)}<span style={{ fontSize: 11, color: "var(--drab)", fontWeight: 400, fontStyle: "normal" }}>/mo</span></div>
               </div>
             );
           })}
@@ -85,8 +96,8 @@ export default function Configurator({ office, addOns }: { office: Office; addOn
 
       {/* right: live price */}
       <div className="card panel pricebox">
-        <div className="kv"><span className="k">{office.code} — unfurnished list</span><span className="v">{money(officeListPrice(office.rate, false))}/mo</span></div>
-        <div className="kv"><span className="k">This config (gross)</span><span className="v">{money(q.grossMonthly)}/mo</span></div>
+        <div className="kv"><span className="k">Offices</span><span className="v">{q.officeCount}</span></div>
+        <div className="kv"><span className="k">Package gross</span><span className="v">{money(q.grossMonthly)}/mo</span></div>
 
         <div style={{ margin: "12px 0 6px" }}>
           <div className="disc-row"><span>Multi-office {q.capped ? "(cap 10%)" : ""}</span><span className="v">−{(q.multiDiscount * 100).toFixed(0)}%</span></div>
@@ -100,8 +111,8 @@ export default function Configurator({ office, addOns }: { office: Office; addOn
           <div className="yr">{money(q.annual)} / yr · {money(q.contractValue)} over {term} months</div>
         </div>
 
-        <button className="btn btn-brass" style={{ width: "100%", justifyContent: "center", marginTop: 18 }} onClick={proceed}>
-          Reserve this office →
+        <button className="btn btn-pop" style={{ width: "100%", justifyContent: "center", marginTop: 18 }} onClick={proceed}>
+          Reserve {q.officeCount > 1 ? "these offices" : "this office"} →
         </button>
         <p className="placeholder-note" style={{ textAlign: "center" }}>List price — starting point for negotiation.</p>
       </div>

@@ -82,7 +82,9 @@ export function quote(input: QuoteInput): Quote {
     gross += addOnListPrice(rate); // add-ons priced flat, no conf hours
   }
 
-  const multiRaw = officeCount * CONFIG.multiPerOffice;
+  // Multi-office discount starts at the SECOND office: 1 office = 0%,
+  // 2 = 1%, 3 = 2%, … capped at 10%. (A single office gets no multi discount.)
+  const multiRaw = Math.max(officeCount - 1, 0) * CONFIG.multiPerOffice;
   const multiDiscount = Math.min(multiRaw, CONFIG.multiCap);
   const termDiscount = CONFIG.termDiscount[term] ?? 0;
   const conc = Math.max(0, Math.min(concession, 1));

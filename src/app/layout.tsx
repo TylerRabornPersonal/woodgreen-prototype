@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="wm"><span className="n">25</span><span className="t">WOODGREEN</span></span>
               <span className="sub">Executive Suites · Madison, Mississippi</span>
             </Link>
-            <div className="nav-steps">Pick a room → configure → reserve</div>
+            <div className="nav-steps">Select offices → configure → reserve</div>
           </div>
         </header>
         <main>{children}</main>

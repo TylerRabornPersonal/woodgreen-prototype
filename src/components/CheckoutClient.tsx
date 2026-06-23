@@ -6,8 +6,8 @@ import { money } from "@/lib/engine";
 
 export type LineItem = { label: string; sub: string; price: number };
 export type CheckoutData = {
-  officeCode: string;
-  officeSlug: string;
+  officeCodes: string[];
+  officeSlugs: string[];
   term: number;
   furnished: boolean;
   lines: LineItem[];
@@ -33,9 +33,12 @@ export default function CheckoutClient({ data }: { data: CheckoutData }) {
         <div className="check">✓</div>
         <h2>Reservation request received</h2>
         <p className="lead" style={{ margin: "0 auto 6px" }}>
-          Thanks, {form.name.split(" ")[0] || "there"} — we&apos;ve logged your request for Office{" "}
-          {data.officeCode} at {money(data.netMonthly)}/mo on a {data.term}-month term. Our team will
-          reach out to {form.email} to finalize the license agreement.
+          Thanks, {form.name.split(" ")[0] || "there"} — we&apos;ve logged your request for{" "}
+          {data.officeCodes.length > 1
+            ? `${data.officeCodes.length} offices (${data.officeCodes.join(", ")})`
+            : `Office ${data.officeCodes[0]}`}{" "}
+          at {money(data.netMonthly)}/mo on a {data.term}-month term. Our team will reach out to{" "}
+          {form.email} to finalize the license agreement.
         </p>
         <p className="placeholder-note">
           (Prototype: no charge was made and no email was sent. This is where the signed license +
