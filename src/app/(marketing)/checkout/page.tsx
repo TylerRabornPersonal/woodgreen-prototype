@@ -48,6 +48,7 @@ export default async function CheckoutPage({
   const data: CheckoutData = {
     officeCodes: offices.map((o) => o.code),
     officeSlugs: offices.map((o) => o.slug),
+    addOnSlugs: chosen.map((a) => a.slug),
     term,
     furnished,
     lines,

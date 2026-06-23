@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { usePortal } from "@/components/portal/PortalProvider";
-import { rooms, confBank, nextDateISO, money } from "@/lib/portal/mock";
+import { rooms, nextDateISO, money } from "@/lib/portal/mock";
 import { CONFIG } from "@/lib/engine";
 
 const START_SLOTS: string[] = [];
@@ -23,7 +23,7 @@ const fmtDate = (iso: string) =>
   new Date(iso + "T00:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
 export default function BookPage() {
-  const { bookings, confRemaining, createBooking, cancelBooking } = usePortal();
+  const { bookings, confRemaining, createBooking, cancelBooking, confBank } = usePortal();
   const [roomId, setRoomId] = useState(rooms[0].id);
   const [dateISO, setDateISO] = useState(nextDateISO(1));
   const [start, setStart] = useState("09:00");

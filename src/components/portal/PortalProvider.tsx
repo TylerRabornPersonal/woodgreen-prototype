@@ -1,20 +1,25 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { rooms, type PaymentMethod, type Booking, type Invoice } from "@/lib/portal/mock";
 import {
-  initialPaymentMethods,
-  initialBookings,
-  confBank,
-  rooms,
-  type PaymentMethod,
-  type Booking,
-} from "@/lib/portal/mock";
+  DEMO_SESSION,
+  loadSession,
+  type SessionTenant,
+  type SessionLicense,
+  type SessionConfBank,
+} from "@/lib/portal/session";
 
 type PortalState = {
+  tenant: SessionTenant;
+  license: SessionLicense;
+  confBank: SessionConfBank;
+  invoices: Invoice[];
   paymentMethods: PaymentMethod[];
   bookings: Booking[];
   confUsed: number;
   confRemaining: number;
+  isGenerated: boolean; // true if a real flow created this tenant (vs demo)
   addPaymentMethod: (m: Omit<PaymentMethod, "id" | "isDefault">) => void;
   removePaymentMethod: (id: string) => void;
   setDefaultPaymentMethod: (id: string) => void;
@@ -34,11 +39,24 @@ let idn = 100;
 const nextId = (p: string) => `${p}_${++idn}`;
 
 export default function PortalProvider({ children }: { children: ReactNode }) {
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(initialPaymentMethods);
-  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [session, setSession] = useState(DEMO_SESSION);
+  const [isGenerated, setIsGenerated] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(DEMO_SESSION.paymentMethods);
+  const [bookings, setBookings] = useState<Booking[]>(DEMO_SESSION.bookings);
+
+  // After mount, swap in the tenant created by the flow (if any).
+  useEffect(() => {
+    const s = loadSession();
+    if (s) {
+      setSession(s);
+      setPaymentMethods(s.paymentMethods);
+      setBookings(s.bookings);
+      setIsGenerated(true);
+    }
+  }, []);
 
   const confUsed = useMemo(() => bookings.reduce((s, b) => s + b.hours, 0), [bookings]);
-  const confRemaining = Math.max(confBank.allotted - confUsed, 0);
+  const confRemaining = Math.max(session.confBank.allotted - confUsed, 0);
 
   const addPaymentMethod: PortalState["addPaymentMethod"] = (m) =>
     setPaymentMethods((prev) => {
@@ -50,7 +68,6 @@ export default function PortalProvider({ children }: { children: ReactNode }) {
   const removePaymentMethod: PortalState["removePaymentMethod"] = (id) =>
     setPaymentMethods((prev) => {
       const filtered = prev.filter((p) => p.id !== id);
-      // keep a default if we removed it
       if (filtered.length && !filtered.some((p) => p.isDefault)) filtered[0].isDefault = true;
       return [...filtered];
     });
@@ -65,10 +82,15 @@ export default function PortalProvider({ children }: { children: ReactNode }) {
     setBookings((prev) => prev.filter((b) => b.id !== id));
 
   const value: PortalState = {
+    tenant: session.tenant,
+    license: session.license,
+    confBank: session.confBank,
+    invoices: session.invoices,
     paymentMethods,
     bookings,
     confUsed,
     confRemaining,
+    isGenerated,
     addPaymentMethod,
     removePaymentMethod,
     setDefaultPaymentMethod,

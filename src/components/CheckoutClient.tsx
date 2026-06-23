@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { money } from "@/lib/engine";
 
 export type LineItem = { label: string; sub: string; price: number };
 export type CheckoutData = {
   officeCodes: string[];
   officeSlugs: string[];
+  addOnSlugs: string[];
   term: number;
   furnished: boolean;
   lines: LineItem[];
@@ -22,36 +23,24 @@ export type CheckoutData = {
 };
 
 export default function CheckoutClient({ data }: { data: CheckoutData }) {
-  const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
   const [form, setForm] = useState({ company: "", name: "", email: "", phone: "" });
 
   const valid = form.company.trim() && form.name.trim() && form.email.trim();
 
-  if (submitted) {
-    return (
-      <div className="card panel confirm-screen">
-        <div className="check">✓</div>
-        <h2>Reservation request received</h2>
-        <p className="lead" style={{ margin: "0 auto 6px" }}>
-          Thanks, {form.name.split(" ")[0] || "there"}, we&apos;ve logged your request for{" "}
-          {data.officeCodes.length > 1
-            ? `${data.officeCodes.length} offices (${data.officeCodes.join(", ")})`
-            : `Office ${data.officeCodes[0]}`}{" "}
-          at {money(data.netMonthly)}/mo on a {data.term}-month term. Our team will reach out to{" "}
-          {form.email} to finalize the license agreement.
-        </p>
-        <p className="placeholder-note">
-          (Prototype: no charge was made and no email was sent. This is where the signed license +
-          first invoice would kick off.)
-        </p>
-        <div style={{ marginTop: 22, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/portal" className="btn btn-pop">Go to your tenant portal →</Link>
-          <Link href="/" className="btn btn-ghost">Back to building plan</Link>
-        </div>
-        <p className="footnote" style={{ textAlign: "center" }}>(Demo: the portal opens a sample tenant so you can see the post-signing experience.)</p>
-      </div>
-    );
-  }
+  const toSign = () => {
+    if (!valid) return;
+    const p = new URLSearchParams({
+      offices: data.officeSlugs.join(","),
+      furnished: data.furnished ? "1" : "0",
+      term: String(data.term),
+      company: form.company,
+      name: form.name,
+      email: form.email,
+    });
+    if (data.addOnSlugs.length) p.set("addons", data.addOnSlugs.join(","));
+    router.push(`/sign?${p.toString()}`);
+  };
 
   return (
     <div className="detail-grid">
@@ -72,22 +61,22 @@ export default function CheckoutClient({ data }: { data: CheckoutData }) {
         <div className="summary-line total"><span>You pay / month</span><span>{money(data.netMonthly)}</span></div>
         <p className="footnote">
           {money(data.annual)} per year · {money(data.contractValue)} total contract value over {data.term} months.
-          List price, a starting point for negotiation.
+          This becomes the locked License Fee on Schedule A.
         </p>
       </div>
 
-      {/* contact / mock checkout */}
+      {/* details → sign */}
       <div className="card panel pricebox">
-        <h3>Reserve it</h3>
-        <p className="lead" style={{ fontSize: 12.5 }}>Tell us who you are and we&apos;ll prepare the license agreement.</p>
-        <div className="field"><label>Company</label><input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="Acme LLC" /></div>
+        <h3>Your details</h3>
+        <p className="lead" style={{ fontSize: 12.5 }}>We&apos;ll use these to prepare your license agreement for signature.</p>
+        <div className="field"><label>Company / legal name</label><input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="Acme LLC" /></div>
         <div className="field"><label>Your name</label><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Jane Doe" /></div>
         <div className="field"><label>Email</label><input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="jane@acme.com" /></div>
         <div className="field"><label>Phone (optional)</label><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="(601) 555-0100" /></div>
-        <button className="btn btn-pop" style={{ width: "100%", justifyContent: "center" }} disabled={!valid} onClick={() => setSubmitted(true)}>
-          Submit reservation request
+        <button className="btn btn-pop" style={{ width: "100%", justifyContent: "center" }} disabled={!valid} onClick={toSign}>
+          Continue to license agreement →
         </button>
-        <p className="placeholder-note" style={{ textAlign: "center" }}>No payment taken in this prototype.</p>
+        <p className="placeholder-note" style={{ textAlign: "center" }}>Next: review &amp; e-sign. No payment taken in this prototype.</p>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { tenant } from "@/lib/portal/mock";
+import { usePortal } from "./PortalProvider";
 import type { ReactNode } from "react";
 
 const NAV = [
@@ -14,6 +14,7 @@ const NAV = [
 
 export default function PortalShell({ children }: { children: ReactNode }) {
   const path = usePathname();
+  const { tenant } = usePortal();
   const initials = tenant.orgName.split(" ").filter((w) => /[A-Za-z]/.test(w[0])).slice(0, 2).map((w) => w[0]).join("");
 
   return (

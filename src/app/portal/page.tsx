@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePortal } from "@/components/portal/PortalProvider";
-import { tenant, license, confBank, invoices, money } from "@/lib/portal/mock";
+import { money } from "@/lib/portal/mock";
 
 export default function PortalDashboard() {
-  const { confRemaining, paymentMethods, bookings } = usePortal();
+  const { confRemaining, paymentMethods, bookings, tenant, license, confBank, invoices, isGenerated } = usePortal();
   const due = invoices.find((i) => i.status === "due");
   const defaultPm = paymentMethods.find((p) => p.isDefault);
   const upcoming = bookings.filter((b) => b.dateISO >= new Date().toISOString().slice(0, 10));
@@ -57,7 +57,11 @@ export default function PortalDashboard() {
         </div>
       </div>
 
-      <p className="portal-note">Demo portal · figures are illustrative. Billing is simulated (no real charges).</p>
+      <p className="portal-note">
+        {isGenerated
+          ? "Your portal · created from the offices you selected and signed for. Billing is simulated (no real charges)."
+          : "Demo portal · sample tenant. Complete the reserve → sign → pay flow to generate your own. Billing is simulated."}
+      </p>
     </div>
   );
 }

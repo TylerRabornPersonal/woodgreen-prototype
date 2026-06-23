@@ -484,3 +484,35 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .report-stat{font-family:var(--font-display);font-size:24px;color:var(--walnut-800);margin:10px 0 4px}
 .report-desc{font-size:13px;color:var(--walnut-700);margin:0 0 16px}
 .report-btn{margin-top:auto}
+
+/* ───────── LICENSE AGREEMENT + SIGNING ───────── */
+.agreement{font-size:13.5px;color:var(--walnut-800)}
+.agr-head{text-align:center;margin-bottom:16px;border-bottom:1px solid var(--linen);padding-bottom:16px}
+.agr-org{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--brass-700);font-weight:700}
+.agr-addr{font-size:12px;color:var(--drab);margin-top:6px}
+.agr-scheduleA{background:var(--ivory);border:1px solid var(--linen);border-radius:var(--r-lg);padding:18px;margin:18px 0}
+.agr-body{margin-top:16px}
+.agr-section{margin-bottom:13px}
+.agr-sh{font-family:var(--font-display);font-weight:500;font-size:15px;color:var(--walnut-800);margin:0 0 6px}
+.agr-p{font-size:13px;color:var(--walnut-700);line-height:1.6;margin:0 0 7px}
+.agr-rules{margin-bottom:10px}
+.agr-ul{margin:4px 0 0;padding-left:18px}
+.agr-ul li{font-size:13px;color:var(--walnut-700);line-height:1.5;margin-bottom:3px}
+.agr-scroll{max-height:560px;overflow-y:auto;background:var(--cream);border:1px solid var(--linen);border-radius:var(--r-xl);box-shadow:var(--shadow-md),inset 0 -18px 22px -18px rgba(44,30,18,.14);padding:30px;margin-bottom:16px}
+
+.signsteps{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.signstep{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--drab)}
+.signstep.on{color:var(--walnut-800)}
+.signstep.done{color:var(--forest-700)}
+.signstep-n{width:24px;height:24px;border-radius:50%;background:var(--sand);color:var(--drab);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.signstep.on .signstep-n,.signstep.done .signstep-n{background:var(--forest-600);color:#fff}
+
+.sign-form{max-width:580px}
+.sign-form h3{font-family:var(--font-display);font-weight:400;font-size:20px;color:var(--walnut-800);margin:0 0 14px}
+.sign-form .btn{margin-top:8px}
+.sign-actions{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:8px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--walnut-700);line-height:1.5;margin:10px 0;cursor:pointer}
+.consent input{margin-top:3px;flex:none}
+.guaranty-box{border:1px solid var(--linen);border-left:3px solid var(--brass-600);border-radius:var(--r-lg);padding:14px 16px;margin:14px 0;background:var(--ivory)}
+.guaranty-box h4{font-family:var(--font-display);font-weight:500;font-size:15px;color:var(--walnut-800);margin:0 0 8px}
+.pay-summary{margin-bottom:10px;border-bottom:1px solid var(--sand);padding-bottom:6px}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePortal } from "@/components/portal/PortalProvider";
-import { invoices, license, money } from "@/lib/portal/mock";
+import { money } from "@/lib/portal/mock";
 
 function brandFromNumber(digits: string): string {
   if (digits.startsWith("4")) return "Visa";
@@ -12,7 +12,7 @@ function brandFromNumber(digits: string): string {
 }
 
 export default function BillingPage() {
-  const { paymentMethods, addPaymentMethod, removePaymentMethod, setDefaultPaymentMethod } = usePortal();
+  const { paymentMethods, addPaymentMethod, removePaymentMethod, setDefaultPaymentMethod, invoices, license } = usePortal();
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<"card" | "bank">("card");
   const [num, setNum] = useState("");
