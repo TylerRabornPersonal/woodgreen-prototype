@@ -19,6 +19,7 @@
   --brass-300:#D8C49A; --brass-500:#BFA068; --brass-600:#A98A52; --brass-700:#8A6F3F;
   /* Warm neutrals */
   --cream:#FBF7EC; --parchment:#F6F0E2; --sand:#E9DFC9; --linen:#D8CCB2;
+  --ivory:#FEFBF3; /* page background — a touch brighter than cream cards */
   --stone-300:#B6A88F; --stone-400:#978872; --drab:#6B5F4F; --ink:#2C241B; --white:#FFFFFF;
   /* Functional */
   --success:#4F7A43; --warning:#C97B3D; --error:#A23E3E; --info:#3D6A8C;
@@ -44,7 +45,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  background:var(--parchment);
+  background:var(--ivory);
   color:var(--ink);
   font-family:var(--font-body);
   line-height:1.6;
@@ -57,7 +58,7 @@ a{color:inherit;text-decoration:none}
 .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
 
 /* header — primary wordmark on parchment (green) */
-.site-header{background:var(--parchment);color:var(--ink);padding:20px 0;border-bottom:3px solid var(--brass-600)}
+.site-header{background:var(--ivory);color:var(--ink);padding:20px 0;border-bottom:3px solid var(--brass-600)}
 .site-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .brand{display:flex;flex-direction:column;gap:3px}
 .wm{font-family:var(--font-logo);font-weight:400;line-height:1;font-size:26px;letter-spacing:.01em;white-space:nowrap}
@@ -210,8 +211,8 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 
 /* sections */
 .home-section{padding:64px 0}
-.sec-parchment{background:var(--parchment)}
-.sec-cream{background:var(--cream)}
+.sec-parchment{background:var(--ivory)}
+.sec-cream{background:var(--ivory)}
 .sec-h{font-family:var(--font-display);font-weight:400;font-size:clamp(1.9rem,3.4vw,2.6rem);letter-spacing:-.015em;color:var(--walnut-800);margin:0 0 14px;font-feature-settings:"liga" 1,"dlig" 0}
 .sec-lead{font-size:16px;line-height:1.6;color:var(--walnut-700);max-width:680px;margin:0 0 26px}
 
