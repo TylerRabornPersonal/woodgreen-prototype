@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { rooms, type PaymentMethod, type Booking, type Invoice } from "@/lib/portal/mock";
+import { loadConf, saveConf } from "@/lib/admin/conf-store";
 import {
   DEMO_SESSION,
   loadSession,
@@ -19,6 +20,7 @@ type PortalState = {
   bookings: Booking[];
   confUsed: number;
   confRemaining: number;
+  bookingsVersion: number; // bumps when conference bookings change (for the shared calendar)
   isGenerated: boolean; // true if a real flow created this tenant (vs demo)
   addPaymentMethod: (m: Omit<PaymentMethod, "id" | "isDefault">) => void;
   removePaymentMethod: (id: string) => void;
@@ -43,6 +45,7 @@ export default function PortalProvider({ children }: { children: ReactNode }) {
   const [isGenerated, setIsGenerated] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(DEMO_SESSION.paymentMethods);
   const [bookings, setBookings] = useState<Booking[]>(DEMO_SESSION.bookings);
+  const [bookingsVersion, setBookingsVersion] = useState(0);
 
   // After mount, swap in the tenant created by the flow (if any).
   useEffect(() => {
@@ -75,11 +78,19 @@ export default function PortalProvider({ children }: { children: ReactNode }) {
   const setDefaultPaymentMethod: PortalState["setDefaultPaymentMethod"] = (id) =>
     setPaymentMethods((prev) => prev.map((p) => ({ ...p, isDefault: p.id === id })));
 
-  const createBooking: PortalState["createBooking"] = (b) =>
-    setBookings((prev) => [...prev, { ...b, id: nextId("bk") }].sort((a, z) => (a.dateISO + a.start).localeCompare(z.dateISO + z.start)));
+  const createBooking: PortalState["createBooking"] = (b) => {
+    const id = nextId("bk");
+    setBookings((prev) => [...prev, { ...b, id }].sort((a, z) => (a.dateISO + a.start).localeCompare(z.dateISO + z.start)));
+    // mirror into the shared building conference calendar (so admin + the grid see it)
+    saveConf([...loadConf(), { id, roomId: b.roomId, tenant: session.tenant.orgName, dateISO: b.dateISO, start: b.start, end: b.end }]);
+    setBookingsVersion((v) => v + 1);
+  };
 
-  const cancelBooking: PortalState["cancelBooking"] = (id) =>
+  const cancelBooking: PortalState["cancelBooking"] = (id) => {
     setBookings((prev) => prev.filter((b) => b.id !== id));
+    saveConf(loadConf().filter((x) => x.id !== id));
+    setBookingsVersion((v) => v + 1);
+  };
 
   const value: PortalState = {
     tenant: session.tenant,
@@ -90,6 +101,7 @@ export default function PortalProvider({ children }: { children: ReactNode }) {
     bookings,
     confUsed,
     confRemaining,
+    bookingsVersion,
     isGenerated,
     addPaymentMethod,
     removePaymentMethod,

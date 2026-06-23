@@ -475,7 +475,11 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .cal-cell{background:var(--ivory);padding:8px;min-height:64px;display:flex;flex-direction:column;gap:6px}
 .cal-chip{background:var(--forest-600);color:#fff;border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:1px;border:none;cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:.12s}
 .cal-chip:hover{filter:brightness(1.08)}
+.cal-chip:disabled{filter:none;cursor:default}
 .cal-chip.boardroom{background:var(--walnut-600)}
+.cal-chip.mine{background:var(--forest-600);color:#fff}
+.cal-chip.other{background:var(--sand);color:var(--drab)}
+.cal-chip.other .chip-tenant{opacity:.8}
 .cal-nav{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .cal-range{font-family:var(--font-display);font-size:15px;color:var(--walnut-800);margin-left:6px}
 .chip-time{font-size:11px;font-weight:700}
@@ -537,6 +541,21 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .slot.taken{background:var(--sand);color:var(--stone-400);border-color:var(--linen);cursor:not-allowed;text-decoration:line-through}
 .field textarea{width:100%;border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:11px 13px;font-size:14px;font-family:var(--font-body);color:var(--ink);resize:vertical}
 .field textarea:focus{outline:none;border-color:var(--forest-600);box-shadow:0 0 0 3px rgba(46,69,51,.22)}
+
+/* tour month calendar */
+.cm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.cm-nav{display:flex;align-items:center;gap:10px}
+.cm-arrow{border:1.5px solid var(--linen);background:var(--cream);color:var(--walnut-700);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;line-height:1;font-family:inherit}
+.cm-arrow:hover:not(:disabled){border-color:var(--forest-600);color:var(--forest-700)}
+.cm-arrow:disabled{opacity:.35;cursor:not-allowed}
+.cm-month{font-family:var(--font-display);font-size:16px;color:var(--walnut-800);min-width:150px;text-align:center}
+.cm-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cm-wd{text-align:center;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--drab);font-weight:600;padding-bottom:2px}
+.cm-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--linen);background:var(--cream);border-radius:var(--r-md);font-size:14px;font-weight:600;color:var(--walnut-800);cursor:pointer;font-family:inherit;transition:.12s}
+.cm-cell:hover:not(:disabled){border-color:var(--forest-600);background:var(--forest-100)}
+.cm-cell.on{background:var(--forest-600);color:#fff;border-color:var(--forest-600)}
+.cm-cell.off{opacity:.32;cursor:not-allowed;background:transparent;border-color:transparent}
+.cm-cell.empty{border:none;background:transparent;cursor:default}
 
 /* admin availability */
 .avail-grid{display:flex;flex-direction:column;gap:10px;margin-top:8px}
