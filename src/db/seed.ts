@@ -170,7 +170,9 @@ async function main() {
 
   await db.insert(termOptions).values([
     { months: 12, discount: "0.0000", label: "12 months" },
+    { months: 18, discount: "0.0150", label: "18 months" },
     { months: 24, discount: "0.0300", label: "24 months" },
+    { months: 30, discount: "0.0450", label: "30 months" },
     { months: 36, discount: "0.0600", label: "36 months" },
   ]);
 

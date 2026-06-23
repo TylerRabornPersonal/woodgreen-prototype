@@ -11,7 +11,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           </Link>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <Link href="/portal" className="portal-link">Tenant sign in</Link>
-            <a className="btn btn-ghost header-cta" href="mailto:hello@25woodgreen.com?subject=Tour%20request">Book a tour</a>
+            <Link className="btn btn-ghost header-cta" href="/tour">Book a tour</Link>
           </div>
         </div>
       </header>

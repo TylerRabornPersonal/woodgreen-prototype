@@ -83,7 +83,7 @@ export default function HomeExperience({
           </p>
           <div className="hero-actions">
             <button className="btn btn-pop" onClick={() => scrollTo("offices")}>Select your office</button>
-            <button className="btn btn-ghost on-dark" onClick={() => scrollTo("visit")}>Book a tour</button>
+            <button className="btn btn-ghost on-dark" onClick={() => router.push("/tour")}>Book a tour</button>
           </div>
           <div className="hero-note">Now pre-leasing · opening 2026</div>
         </div>
@@ -120,8 +120,8 @@ export default function HomeExperience({
             <div className="sel-config-item">
               <span className="ctl-label">License term</span>
               <div className="seg brass">
-                {([12, 24, 36] as Term[]).map((t) => (
-                  <button key={t} className={term === t ? "on" : ""} onClick={() => setTerm(t)}>{t} months</button>
+                {([12, 18, 24, 30, 36] as Term[]).map((t) => (
+                  <button key={t} className={term === t ? "on" : ""} onClick={() => setTerm(t)}>{t} mo</button>
                 ))}
               </div>
             </div>
@@ -293,7 +293,7 @@ export default function HomeExperience({
             we&apos;ll show you the suites that fit what you described, coffee on.
           </p>
           <div className="hero-actions">
-            <a className="btn btn-pop" href="mailto:hello@25woodgreen.com?subject=Tour%20request">Book a tour</a>
+            <a className="btn btn-pop" href="/tour">Book a tour</a>
             <button className="btn btn-ghost on-dark" onClick={() => scrollTo("offices")}>Select your office</button>
           </div>
         </div>
@@ -310,7 +310,7 @@ export default function HomeExperience({
             <div className="footer-links">
               <a onClick={() => scrollTo("offices")}>Offices</a>
               <a onClick={() => scrollTo("address")}>The address</a>
-              <a onClick={() => scrollTo("visit")}>Book a tour</a>
+              <a href="/tour">Book a tour</a>
               <a href="/portal">Tenant portal</a>
               <a href="/admin">Operator console</a>
             </div>

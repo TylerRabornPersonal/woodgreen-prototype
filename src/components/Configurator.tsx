@@ -66,9 +66,9 @@ export default function Configurator({ offices, addOns }: { offices: Office[]; a
 
         <span className="ctl-label">License term</span>
         <div className="seg brass">
-          {([12, 24, 36] as Term[]).map((t) => (
+          {([12, 18, 24, 30, 36] as Term[]).map((t) => (
             <button key={t} className={term === t ? "on" : ""} onClick={() => setTerm(t)}>
-              {t} months
+              {t} mo
             </button>
           ))}
         </div>

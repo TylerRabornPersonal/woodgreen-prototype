@@ -11,12 +11,13 @@ export const CONFIG = {
   roundIncrement: 25, // round to nearest $25
   multiPerOffice: 0.01, // 1% per office
   multiCap: 0.1, // capped at 10%
-  termDiscount: { 12: 0, 24: 0.03, 36: 0.06 } as Record<number, number>,
+  // 1.5% per 6-month step beyond 12 months.
+  termDiscount: { 12: 0, 18: 0.015, 24: 0.03, 30: 0.045, 36: 0.06 } as Record<number, number>,
   overageStd: 25, // $/hr standard room
   overageBoardroom: 35, // $/hr boardroom
 } as const;
 
-export type Term = 12 | 24 | 36;
+export type Term = 12 | 18 | 24 | 30 | 36;
 
 export const round25 = (n: number) =>
   Math.round(n / CONFIG.roundIncrement) * CONFIG.roundIncrement;

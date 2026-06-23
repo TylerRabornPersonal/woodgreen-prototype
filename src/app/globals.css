@@ -516,3 +516,45 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .guaranty-box{border:1px solid var(--linen);border-left:3px solid var(--brass-600);border-radius:var(--r-lg);padding:14px 16px;margin:14px 0;background:var(--ivory)}
 .guaranty-box h4{font-family:var(--font-display);font-weight:500;font-size:15px;color:var(--walnut-800);margin:0 0 8px}
 .pay-summary{margin-bottom:10px;border-bottom:1px solid var(--sand);padding-bottom:6px}
+
+/* ───────── BOOK A TOUR ───────── */
+.tour-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;align-items:start}
+@media(max-width:820px){.tour-grid{grid-template-columns:1fr}}
+.day-pick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.day-chip{display:flex;flex-direction:column;align-items:center;gap:2px;border:1.5px solid var(--linen);background:var(--cream);border-radius:var(--r-lg);padding:9px 12px;cursor:pointer;min-width:58px;font-family:inherit;transition:.12s}
+.day-chip:hover{border-color:var(--forest-400)}
+.day-chip.on{border-color:var(--forest-600);background:var(--forest-100)}
+.dc-dow{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--drab);font-weight:600}
+.dc-date{font-family:var(--font-display);font-size:15px;color:var(--walnut-800)}
+.day-chip.on .dc-date{color:var(--forest-700)}
+.slot-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.slot{border:1.5px solid var(--linen);background:var(--cream);border-radius:var(--r-md);padding:10px;font-size:13px;font-weight:600;color:var(--walnut-800);cursor:pointer;font-family:inherit;transition:.12s}
+.slot:hover{border-color:var(--forest-400)}
+.slot.on{background:var(--forest-600);color:#fff;border-color:var(--forest-600)}
+.slot.taken{background:var(--sand);color:var(--stone-400);border-color:var(--linen);cursor:not-allowed;text-decoration:line-through}
+.field textarea{width:100%;border:1.5px solid var(--linen);background:var(--white);border-radius:var(--r-md);padding:11px 13px;font-size:14px;font-family:var(--font-body);color:var(--ink);resize:vertical}
+.field textarea:focus{outline:none;border-color:var(--forest-600);box-shadow:0 0 0 3px rgba(46,69,51,.22)}
+
+/* admin availability */
+.avail-grid{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.avail-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.avail-day{display:flex;flex-direction:column;min-width:60px}
+.ad-dow{font-size:11px;text-transform:uppercase;color:var(--drab);font-weight:600}
+.ad-date{font-family:var(--font-display);font-size:14px;color:var(--walnut-800)}
+.avail-slots{display:flex;gap:6px;flex-wrap:wrap}
+.aslot{border:1.5px solid var(--linen);border-radius:99px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.12s}
+.aslot.open{background:var(--forest-100);color:var(--forest-700);border-color:var(--forest-300)}
+.aslot.open:hover{border-color:var(--forest-600)}
+.aslot.blocked{background:var(--sand);color:var(--stone-400);border-color:var(--linen);text-decoration:line-through}
+.aslot.booked{background:var(--brass-300);color:var(--walnut-900);border-color:var(--brass-600);cursor:not-allowed}
+
+/* tour requests */
+.tour-req-list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.tour-req{display:flex;gap:16px;border:1px solid var(--linen);border-radius:var(--r-lg);padding:13px 16px;background:var(--ivory)}
+.tr-when{text-align:center;min-width:72px;border-right:1px solid var(--sand);padding-right:14px}
+.tr-time{font-family:var(--font-display);font-size:16px;color:var(--walnut-800)}
+.tr-date{font-size:11px;color:var(--drab);text-transform:uppercase;letter-spacing:.04em}
+.tr-name{font-weight:600;color:var(--walnut-800)}
+.tr-contact{font-weight:400;color:var(--drab);font-size:12.5px}
+.tr-offices{font-size:13px;color:var(--walnut-700);margin-top:4px}
+.tr-notes{font-size:12.5px;color:var(--drab);font-style:italic;margin-top:3px}

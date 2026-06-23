@@ -6,7 +6,7 @@ import {
 } from "@/lib/agreement/content";
 
 const money = (cents: number) => "$" + Math.round(cents / 100).toLocaleString();
-const TERM_WORD: Record<number, string> = { 12: "Twelve (12) months", 24: "Twenty-four (24) months", 36: "Thirty-six (36) months" };
+const TERM_WORD: Record<number, string> = { 12: "Twelve (12) months", 18: "Eighteen (18) months", 24: "Twenty-four (24) months", 30: "Thirty (30) months", 36: "Thirty-six (36) months" };
 
 export default function AgreementDocument({
   data,

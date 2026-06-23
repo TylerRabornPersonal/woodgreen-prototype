@@ -32,7 +32,7 @@ export const AGREEMENT_SECTIONS: Section[] = [
     n: "2",
     title: "Term",
     body: [
-      "2.1 Initial Term. The initial term shall be twelve (12), twenty-four (24), or thirty-six (36) months as elected by Licensee on Schedule A (the “Initial Term”), commencing on the Commencement Date and ending at 11:59 p.m. Central Time on the last day of the Initial Term.",
+      "2.1 Initial Term. The initial term shall be twelve (12), eighteen (18), twenty-four (24), thirty (30), or thirty-six (36) months as elected by Licensee on Schedule A (the “Initial Term”), commencing on the Commencement Date and ending at 11:59 p.m. Central Time on the last day of the Initial Term.",
       "2.2 Holdover. Continued use after expiration without a new written agreement shall be month-to-month at one hundred twenty-five percent (125%) of the then-current monthly License Fee, terminable by either Party on thirty (30) days’ written notice.",
     ],
   },
