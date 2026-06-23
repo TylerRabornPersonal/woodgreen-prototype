@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="wm"><span className="n">25</span><span className="t">WOODGREEN</span></span>
               <span className="sub">Executive Suites · Madison, Mississippi</span>
             </Link>
-            <div className="nav-steps">Select offices → configure → reserve</div>
+            <a className="btn btn-ghost header-cta" href="mailto:hello@25woodgreen.com?subject=Tour%20request">Book a tour</a>
           </div>
         </header>
         <main>{children}</main>
