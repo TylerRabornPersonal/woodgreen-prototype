@@ -109,7 +109,25 @@ export default function HomeExperience({
             ))}
           </div>
 
-          <FloorPlan offices={officesByFloor[floor.id] ?? []} selected={selected} onToggle={toggleOffice} />
+          <div className="sel-config">
+            <div className="sel-config-item">
+              <span className="ctl-label">Furnishing</span>
+              <div className="seg">
+                <button className={!furnished ? "on" : ""} onClick={() => setFurnished(false)}>Unfurnished</button>
+                <button className={furnished ? "on" : ""} onClick={() => setFurnished(true)}>Furnished</button>
+              </div>
+            </div>
+            <div className="sel-config-item">
+              <span className="ctl-label">License term</span>
+              <div className="seg brass">
+                {([12, 24, 36] as Term[]).map((t) => (
+                  <button key={t} className={term === t ? "on" : ""} onClick={() => setTerm(t)}>{t} months</button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <FloorPlan offices={officesByFloor[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} />
         </div>
       </section>
 
@@ -123,18 +141,9 @@ export default function HomeExperience({
           <div className="calc-grid">
             {/* controls */}
             <div className="card panel">
-              <span className="ctl-label">Furnishing (all offices)</span>
-              <div className="seg">
-                <button className={!furnished ? "on" : ""} onClick={() => setFurnished(false)}>Unfurnished</button>
-                <button className={furnished ? "on" : ""} onClick={() => setFurnished(true)}>Furnished</button>
-              </div>
-
-              <span className="ctl-label">License term</span>
-              <div className="seg brass">
-                {([12, 24, 36] as Term[]).map((t) => (
-                  <button key={t} className={term === t ? "on" : ""} onClick={() => setTerm(t)}>{t} months</button>
-                ))}
-              </div>
+              <p className="placeholder-note" style={{ marginTop: 0 }}>
+                {furnished ? "Furnished" : "Unfurnished"} · {term}-month term — set in the selector above.
+              </p>
 
               <span className="ctl-label">Selected offices</span>
               {chosenOffices.length ? (
