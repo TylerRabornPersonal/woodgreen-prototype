@@ -44,9 +44,11 @@ export default function CheckoutClient({ data }: { data: CheckoutData }) {
           (Prototype: no charge was made and no email was sent. This is where the signed license +
           first invoice would kick off.)
         </p>
-        <div style={{ marginTop: 22 }}>
+        <div style={{ marginTop: 22, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href="/portal" className="btn btn-pop">Go to your tenant portal →</Link>
           <Link href="/" className="btn btn-ghost">Back to building plan</Link>
         </div>
+        <p className="footnote" style={{ textAlign: "center" }}>(Demo: the portal opens a sample tenant so you can see the post-signing experience.)</p>
       </div>
     );
   }

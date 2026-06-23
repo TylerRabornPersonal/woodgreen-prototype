@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,18 +9,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <header className="site-header">
-          <div className="wrap">
-            <Link href="/" className="brand">
-              <span className="wm"><span className="n">25</span><span className="t">WOODGREEN</span></span>
-              <span className="sub">Executive Suites · Madison, Mississippi</span>
-            </Link>
-            <a className="btn btn-ghost header-cta" href="mailto:hello@25woodgreen.com?subject=Tour%20request">Book a tour</a>
-          </div>
-        </header>
-        <main>{children}</main>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

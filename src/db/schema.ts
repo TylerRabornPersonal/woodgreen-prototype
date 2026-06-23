@@ -110,13 +110,17 @@ export const floors = pgTable(
   "floors",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    // Stable human slug used for routing + as the app-facing floor id ("1993-main").
+    slug: varchar("slug", { length: 32 }).notNull(),
     building: buildingEnum("building").notNull(),
     level: integer("level").notNull(), // 1 = main, 2 = second
-    label: text("label").notNull(), // "1993 Building — Main Floor"
+    label: text("label").notNull(), // "1993 Building · Main Floor"
+    short: text("short"), // "1993 · Main"
     isPremium: boolean("is_premium").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({
+    slugUq: uniqueIndex("floors_slug_uq").on(t.slug),
     buildingLevelUq: uniqueIndex("floors_building_level_uq").on(t.building, t.level),
   }),
 );
@@ -125,6 +129,8 @@ export const offices = pgTable(
   "offices",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    // Stable human slug used for routing ("1993-main-o1").
+    slug: varchar("slug", { length: 48 }).notNull(),
     floorId: uuid("floor_id")
       .notNull()
       .references(() => floors.id),
@@ -141,6 +147,7 @@ export const offices = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({
+    slugUq: uniqueIndex("offices_slug_uq").on(t.slug),
     floorCodeUq: uniqueIndex("offices_floor_code_uq").on(t.floorId, t.code),
     statusIdx: index("offices_status_idx").on(t.status),
   }),
@@ -234,6 +241,8 @@ export const organizations = pgTable(
     legalEntityName: text("legal_entity_name"), // for the license agreement
     industry: text("industry"),
     website: text("website"),
+    // Stripe Customer for billing (set on provisioning). Phase 0 foundational field.
+    stripeCustomerId: text("stripe_customer_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({

@@ -185,18 +185,23 @@ async function main() {
   // --- inventory ---
   let officeCount = 0;
   for (const f of FLOORS) {
+    const floorSlug = `${f.building}-${f.level === 1 ? "main" : "second"}`;
+    const short = `${f.building} · ${f.level === 1 ? "Main" : "2nd"}${f.isPremium ? " (Premium)" : ""}`;
     const [floorRow] = await db
       .insert(floors)
       .values({
+        slug: floorSlug,
         building: f.building,
         level: f.level,
         label: f.label,
+        short,
         isPremium: f.isPremium,
       })
       .returning();
 
     await db.insert(offices).values(
       f.offices.map((o) => ({
+        slug: `${floorSlug}-${o.code.toLowerCase()}`,
         floorId: floorRow.id,
         code: o.code,
         name: o.name,
