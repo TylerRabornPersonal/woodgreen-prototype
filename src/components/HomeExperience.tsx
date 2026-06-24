@@ -6,6 +6,7 @@ import FloorPlan from "./FloorPlan";
 import type { Floor, Office, AddOn } from "@/lib/inventory";
 import { quote, officeListPrice, addOnListPrice, money, type Term } from "@/lib/engine";
 import { defaultOverrides, loadOverrides, toEngineConfig, baseFor } from "@/lib/pricing/store";
+import { applyOccupancy, occupiedSlugs, type Occupancy } from "@/lib/occupancy";
 
 export default function HomeExperience({
   floors,
@@ -27,6 +28,7 @@ export default function HomeExperience({
   const [furnished, setFurnished] = useState(false);
   const [term, setTerm] = useState<Term>(12);
   const [addonSel, setAddonSel] = useState<Set<string>>(new Set());
+  const [occupancy, setOccupancy] = useState<Occupancy>("live");
 
   const floor = floors.find((f) => f.id === activeFloor) ?? floors[0];
 
@@ -36,6 +38,14 @@ export default function HomeExperience({
     [officesByFloor, ov, furnished],
   );
   const allOfficesBase = useMemo(() => Object.values(officesByFloorBase).flat(), [officesByFloorBase]);
+
+  // demo occupancy overlay (footer control); "live" = real inventory taken flags
+  const officesByFloorView = useMemo(() => applyOccupancy(officesByFloorBase, occupancy), [officesByFloorBase, occupancy]);
+  const changeOccupancy = (occ: Occupancy) => {
+    setOccupancy(occ);
+    const taken = occupiedSlugs(officesByFloorBase, occ);
+    setSelected((prev) => new Set([...prev].filter((s) => !taken.has(s)))); // drop now-occupied picks
+  };
 
   const toggleOffice = (slug: string) =>
     setSelected((p) => {
@@ -138,7 +148,7 @@ export default function HomeExperience({
             </div>
           </div>
 
-          <FloorPlan offices={officesByFloorBase[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} cfg={cfg} term={term} />
+          <FloorPlan offices={officesByFloorView[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} cfg={cfg} term={term} occupancy={occupancy} onOccupancyChange={changeOccupancy} />
         </div>
       </section>
 
