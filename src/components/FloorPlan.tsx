@@ -80,7 +80,7 @@ export default function FloorPlan({
 
     return (
       <div className="plan-shell">
-        <div className="plan traced">
+        <div className={`plan traced floor-${offices[0]?.floorId ?? ""}`}>
           <svg viewBox={traced.vb} role="img" aria-label="Floor plan">
             <polygon className="plan-fill" points={traced.fill} />
 
