@@ -148,6 +148,54 @@ export function adminBookingsFor(occ: Occupancy): AdminBooking[] {
 
 export { rooms };
 
+/* --- lease timeline grid (next N months) --- */
+const MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const sinceToAbs = (since: string): number => {
+  const [mon, y] = since.split(" ");
+  return Number(y) * 12 + Math.max(0, MON3.indexOf(mon));
+};
+
+export type LeaseCell = { leased: boolean; expiring: boolean };
+export type LeaseRow = { slug: string; code: string; floorId: string; tenant: string | null; cells: LeaseCell[] };
+export type LeaseGrid = {
+  months: { y: number; m: number; short: string }[];
+  rows: LeaseRow[];
+  totals: number[];
+};
+
+/** Per-office month-by-month lease coverage for the next `monthsCount` months. */
+export function leaseGridFor(occ: Occupancy, monthsCount = 36, anchor: Date = new Date()): LeaseGrid {
+  const startAbs = anchor.getFullYear() * 12 + anchor.getMonth();
+  const months = Array.from({ length: monthsCount }, (_, i) => {
+    const abs = startAbs + i;
+    const y = Math.floor(abs / 12);
+    const m = abs % 12;
+    return { y, m: m + 1, short: `${MON3[m]} '${String(y).slice(2)}` };
+  });
+
+  // office slug -> its active lease window [start, end)
+  const byOffice = new Map<string, { tenant: string; start: number; end: number }>();
+  for (const l of activeLeases(occ)) {
+    const start = sinceToAbs(l.since);
+    const end = start + l.term;
+    for (const s of l.officeSlugs) byOffice.set(s, { tenant: l.org, start, end });
+  }
+
+  const rows: LeaseRow[] = OFFICES.map((o) => {
+    const info = byOffice.get(o.slug);
+    const cells = months.map((mo) => {
+      const abs = mo.y * 12 + (mo.m - 1);
+      const leased = !!info && abs >= info.start && abs < info.end;
+      const expiring = !!info && abs === info.end - 1; // last month of the committed term
+      return { leased, expiring };
+    });
+    return { slug: o.slug, code: o.code, floorId: o.floorId, tenant: info?.tenant ?? null, cells };
+  });
+
+  const totals = months.map((_, i) => rows.reduce((s, r) => s + (r.cells[i].leased ? 1 : 0), 0));
+  return { months, rows, totals };
+}
+
 /* --- KPI rollups --- */
 export function kpisFor(occ: Occupancy) {
   const ten = tenantsFor(occ);

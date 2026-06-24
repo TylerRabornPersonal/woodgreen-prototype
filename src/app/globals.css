@@ -149,6 +149,31 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 /* occupied offices must read as occupied on traced floors too (beat .plan.traced .room rect) */
 .plan.traced .room.taken rect,.plan.traced .room.taken polygon{fill:#ECE5D6;stroke:var(--linen)}
 .plan.traced .room.taken:hover rect,.plan.traced .room.taken:hover polygon{fill:#ECE5D6;stroke:var(--linen)}
+/* lease timeline grid */
+.lease-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:0 0 12px;font-size:12px;color:var(--drab)}
+.lease-legend .sw{display:inline-flex;align-items:center;gap:7px}
+.lease-legend .lease-note{margin-left:auto;font-style:italic;font-family:var(--font-display);color:var(--drab)}
+.lg-key{width:14px;height:14px;border-radius:3px;border:1px solid var(--linen);background:var(--cream);display:inline-block}
+.lg-key.leased{background:var(--forest-400);border-color:var(--forest-600)}
+.lg-key.expiring{background:var(--forest-400);border-color:var(--forest-600);box-shadow:inset -3px 0 0 var(--brass-600)}
+.lease-wrap{overflow-x:auto;border:1px solid var(--linen);border-radius:var(--r-xl);box-shadow:var(--shadow-md);background:var(--cream)}
+.lease-grid{border-collapse:collapse;font-size:11px;width:max-content}
+.lease-grid th,.lease-grid td{border:1px solid var(--sand);text-align:center;padding:0}
+.lease-grid thead th{position:sticky;top:0;background:var(--sand);color:var(--drab);font-weight:600;white-space:nowrap;padding:6px 5px;z-index:1}
+.lease-grid th.lg-jan{border-left:2px solid var(--brass-300)}
+.lg-office{position:sticky;left:0;background:var(--cream);text-align:left;white-space:nowrap;padding:5px 10px;font-weight:600;color:var(--walnut-800);min-width:70px;max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.lease-grid thead th.lg-office{z-index:2;background:var(--sand)}
+.lg-ten{color:var(--drab);font-weight:400;font-size:10px}
+.lg-cell{width:22px;height:22px}
+.lg-cell.leased{background:var(--forest-400)}
+.lg-cell.expiring{box-shadow:inset -3px 0 0 var(--brass-600)}
+.lg-floor td{background:var(--sand);text-transform:uppercase;letter-spacing:.05em;font-size:10px;color:var(--walnut-700);font-weight:700;padding:4px 10px}
+.lg-floor .lg-office{background:var(--sand)}
+.lg-total td{background:var(--parchment);position:relative;height:24px}
+.lg-total .lg-office{background:var(--parchment);color:var(--walnut-900)}
+.lg-total-bar{position:absolute;inset:2px;background:var(--forest-400);border-radius:2px}
+.lg-total-num{position:relative;font-weight:700;color:var(--walnut-900);font-size:10.5px}
+
 /* demo-occupancy control (operator console header) */
 .occ-control{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
 .occ-control-label{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--drab);font-weight:600}
