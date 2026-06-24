@@ -173,18 +173,22 @@ export default function HomeExperience({
                 <p className="placeholder-note">No offices selected yet. <button className="linklike" onClick={() => scrollTo("offices")}>Pick some on the plan ↑</button></p>
               )}
 
-              <span className="ctl-label">Add storage, conference &amp; more</span>
-              <div className="addon-list">
-                {addOns.map((a) => {
-                  const sel = addonSel.has(a.slug);
-                  return (
-                    <div key={a.slug} className={`addon${sel ? " sel" : ""}`} onClick={() => toggleAddon(a.slug)}>
-                      <div><div className="nm">{a.name}</div><div className="meta">{a.sqft} SF · flat rate</div></div>
-                      <div className="pr">{money(addOnListPrice(a.rate, cfg))}<span style={{ fontSize: 11, color: "var(--drab)", fontWeight: 400, fontStyle: "normal" }}>/mo</span></div>
-                    </div>
-                  );
-                })}
-              </div>
+              {addOns.length > 0 && (
+                <>
+                  <span className="ctl-label">Add storage, conference &amp; more</span>
+                  <div className="addon-list">
+                    {addOns.map((a) => {
+                      const sel = addonSel.has(a.slug);
+                      return (
+                        <div key={a.slug} className={`addon${sel ? " sel" : ""}`} onClick={() => toggleAddon(a.slug)}>
+                          <div><div className="nm">{a.name}</div><div className="meta">{a.sqft} SF · flat rate</div></div>
+                          <div className="pr">{money(addOnListPrice(a.rate, cfg))}<span style={{ fontSize: 11, color: "var(--drab)", fontWeight: 400, fontStyle: "normal" }}>/mo</span></div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* summary */}

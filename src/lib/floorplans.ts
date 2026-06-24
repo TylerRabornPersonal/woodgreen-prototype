@@ -58,6 +58,7 @@ export const TRACED_PLANS: Record<string, TracedPlan> = {
       O6: { x: 260, y: 518, w: 125, h: 171 },
       O5: { x: 666, y: 518, w: 137, h: 171 },
       O4: { x: 808, y: 518, w: 185, h: 135 },
+      FILE: { x: 248, y: 331, w: 151, h: 132 }, // fireproof filing (storage), below O3
     },
     fixed: [
       {
@@ -133,10 +134,10 @@ export const TRACED_PLANS: Record<string, TracedPlan> = {
       P3: { x: 816.6, y: 322.8, w: 52.35, h: 81.0 },
       P2: { x: 868.95, y: 322.8, w: 56.65, h: 63.4 },
       P1: { x: 925.6, y: 322.8, w: 62.4, h: 63.4 },
+      // Dedicated conference — now a selectable, rentable room (was a display-only block).
+      CONF: { x: 940.7, y: 208.6, w: 47.3, h: 114.2 },
     },
-    fixed: [
-      { x: 940.7, y: 208.6, w: 47.3, h: 114.2, label: "CONF", sub: "254 SF", kind: "conference" }, // stretched down to touch P1
-    ],
+    fixed: [],
   },
 
   // 2001 Building · Second Floor — renovation (loft buildout). Offices A–I map to
@@ -160,6 +161,31 @@ export const TRACED_PLANS: Record<string, TracedPlan> = {
     fixed: [
       { x: 397, y: 75, w: 192, h: 140, label: "CONFERENCE", sub: "shared · ~373 SF", kind: "conference" },
     ],
+  },
+
+  // 2001 Building · Basement — storage floor. Three bands: back (server + locked),
+  // center hallway/stairwell, front (two storage rooms). Rooms map to inventory
+  // codes SVR/LCK/FL/FR. Source: 2001-basement-floor.html (viewBox 860×700).
+  "2001-basement": {
+    vb: "245 108 492 495",
+    fill:
+      "444,120 563.4,120 563.4,164 720,164 720,580.7 400.7,580.7 400.7,319.4 314.7,319.4 314.7,359 260,359 260,241 314.7,241 314.7,280.7 444,280.7",
+    walls: [
+      "444,120 563.4,120 563.4,164 720,164 720,580.7 400.7,580.7 400.7,319.4 314.7,319.4 314.7,359 260,359 260,241 314.7,241 314.7,280.7 444,280.7 444,120",
+    ],
+    rooms: {
+      SVR: {
+        x: 444, y: 120, w: 162.7, h: 160.7,
+        points: "444,120 563.4,120 563.4,164 606.7,164 606.7,280.7 444,280.7",
+      },
+      LCK: { x: 606.7, y: 164, w: 113.3, h: 116.7 },
+      FL: {
+        x: 400.7, y: 319.4, w: 160, h: 261.3,
+        points: "442,319.4 560.7,319.4 560.7,580.7 400.7,580.7 400.7,373.4 442,373.4",
+      },
+      FR: { x: 560.7, y: 319.4, w: 159.3, h: 261 },
+    },
+    fixed: [],
   },
 };
 

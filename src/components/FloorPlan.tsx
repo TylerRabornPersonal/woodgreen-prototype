@@ -63,7 +63,7 @@ export default function FloorPlan({
       <span className="sw"><span className="chip" /> Available</span>
       <span className="sw"><span className="chip sel" /> Selected</span>
       {traced ? (
-        <span className="sw"><span className="chip conf" /> Shared</span>
+        traced.fixed.length > 0 && <span className="sw"><span className="chip conf" /> Shared</span>
       ) : (
         <span className="sw"><span className="chip prem" /> Premium floor</span>
       )}

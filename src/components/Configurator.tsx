@@ -79,25 +79,29 @@ export default function Configurator({ offices: rawOffices, addOns }: { offices:
           ))}
         </div>
 
-        <span className="ctl-label">Add storage, conference &amp; more</span>
-        <div className="addon-list">
-          {addOns.map((a) => {
-            const price = addOnListPrice(a.rate, cfg);
-            const sel = selected.has(a.slug);
-            return (
-              <div key={a.slug} className={`addon${sel ? " sel" : ""}`} onClick={() => toggle(a.slug)}>
-                <div>
-                  <div className="nm">{a.name}</div>
-                  <div className="meta">{a.sqft} SF · flat rate</div>
-                </div>
-                <div className="pr">{money(price)}<span style={{ fontSize: 11, color: "var(--drab)", fontWeight: 400, fontStyle: "normal" }}>/mo</span></div>
-              </div>
-            );
-          })}
-        </div>
-        <p className="placeholder-note">
-          Add-ons are flat-priced and don&apos;t count toward the multi-office discount, but receive the package discount.
-        </p>
+        {addOns.length > 0 && (
+          <>
+            <span className="ctl-label">Add storage, conference &amp; more</span>
+            <div className="addon-list">
+              {addOns.map((a) => {
+                const price = addOnListPrice(a.rate, cfg);
+                const sel = selected.has(a.slug);
+                return (
+                  <div key={a.slug} className={`addon${sel ? " sel" : ""}`} onClick={() => toggle(a.slug)}>
+                    <div>
+                      <div className="nm">{a.name}</div>
+                      <div className="meta">{a.sqft} SF · flat rate</div>
+                    </div>
+                    <div className="pr">{money(price)}<span style={{ fontSize: 11, color: "var(--drab)", fontWeight: 400, fontStyle: "normal" }}>/mo</span></div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="placeholder-note">
+              Add-ons are flat-priced and don&apos;t count toward the multi-office discount, but receive the package discount.
+            </p>
+          </>
+        )}
       </div>
 
       {/* right: live price */}
