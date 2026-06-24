@@ -3,12 +3,15 @@
 import { useMemo } from "react";
 import type { Office } from "@/lib/inventory";
 import { officeListPrice, money, CONFIG, type EngineConfig } from "@/lib/engine";
+import { tracedPlanFor } from "@/lib/floorplans";
 
 /**
- * Placeholder 2D floor plan. Rooms are laid out along a central corridor in two
- * banks — a schematic stand-in for real CAD. Click toggles selection (you can
- * pick several offices, then Continue). Swap the geometry for an SVG traced from
- * the real plans later; the select targets stay the same.
+ * 2D floor plan. Where a traced plan exists for the floor (see lib/floorplans),
+ * the real geometry is rendered — offices punch through a solid floor fill and
+ * highlight green on select; everything else (halls, baths, lobby) collapses
+ * into the fill, with shared amenities like the conference room shown as
+ * display-only blocks. Floors without a traced plan fall back to the schematic
+ * placeholder grid below.
  */
 
 const ROOM_W = 128;
@@ -30,6 +33,9 @@ export default function FloorPlan({
   furnished?: boolean;
   cfg?: EngineConfig;
 }) {
+  const traced = tracedPlanFor(offices[0]?.floorId);
+
+  // Placeholder-grid layout — computed unconditionally to keep hook order stable.
   const { rects, width, height } = useMemo(() => {
     const half = Math.ceil(offices.length / 2);
     const top = offices.slice(0, half);
@@ -48,6 +54,94 @@ export default function FloorPlan({
     return { rects: [...place(top, topY), ...place(bottom, bottomY)], width, height };
   }, [offices]);
 
+  const legend = (
+    <div className="legend">
+      <span className="sw"><span className="chip" /> Available</span>
+      <span className="sw"><span className="chip sel" /> Selected</span>
+      {traced ? (
+        <span className="sw"><span className="chip conf" /> Shared</span>
+      ) : (
+        <span className="sw"><span className="chip prem" /> Premium floor</span>
+      )}
+      <span className="sw"><span className="chip taken" /> Occupied</span>
+      <span className="sw" style={{ marginLeft: "auto" }}>
+        Prices {furnished ? "furnished" : "unfurnished"} · {furnished ? "incl. furniture" : "set furnishing & term above"}
+      </span>
+    </div>
+  );
+
+  // ── Real traced plan ───────────────────────────────────────────────
+  if (traced) {
+    const byCode = new Map(offices.map((o) => [o.code, o]));
+    const [vw, vh] = traced.vb;
+
+    return (
+      <div className="plan-shell">
+        <div className="plan traced">
+          <svg viewBox={`0 0 ${vw} ${vh}`} role="img" aria-label="Floor plan">
+            <polygon className="plan-fill" points={traced.fill} />
+
+            {traced.fixed.map((f, i) => {
+              const cx = f.x + f.w / 2;
+              const cy = f.y + f.h / 2;
+              return (
+                <g key={`fixed-${i}`} className={`plan-fixed ${f.kind}`}>
+                  <rect x={f.x} y={f.y} width={f.w} height={f.h} rx={7} />
+                  <text className="ff-label" x={cx} y={cy - 2} textAnchor="middle">{f.label}</text>
+                  {f.sub && <text className="ff-sub" x={cx} y={cy + 16} textAnchor="middle">{f.sub}</text>}
+                </g>
+              );
+            })}
+
+            {Object.entries(traced.rooms).map(([code, r]) => {
+              const o = byCode.get(code);
+              if (!o) return null;
+              const price = officeListPrice(o.rate, false, cfg);
+              const isSel = selected.has(o.slug);
+              const cx = r.x + r.w / 2;
+              const cy = r.y + r.h / 2;
+              const cls = `room${o.premium ? " prem" : ""}${o.taken ? " taken" : ""}${isSel ? " sel" : ""}`;
+              return (
+                <g
+                  key={o.slug}
+                  className={cls}
+                  onClick={() => !o.taken && onToggle(o.slug)}
+                  aria-label={`${o.code} ${o.taken ? "occupied" : money(price) + " per month"}${isSel ? " (selected)" : ""}`}
+                >
+                  <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={7} />
+                  {isSel && (
+                    <g>
+                      <circle cx={r.x + r.w - 18} cy={r.y + 18} r={9} className="sel-dot" />
+                      <path
+                        d={`M ${r.x + r.w - 22} ${r.y + 18} l 3 3 l 5 -6`}
+                        className="sel-check"
+                        fill="none"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </g>
+                  )}
+                  <text className="code" x={cx} y={cy - 10} textAnchor="middle">{o.code}</text>
+                  <text className="rent" x={cx} y={cy + 9} textAnchor="middle">{o.sqft} SF</text>
+                  <text className="rent" x={cx} y={cy + 26} textAnchor="middle">
+                    {o.taken ? "Occupied" : `${money(price)}/mo`}
+                  </text>
+                </g>
+              );
+            })}
+
+            {traced.walls.map((pts, i) => (
+              <polyline key={`wall-${i}`} className="bldg-outline" points={pts} fill="none" />
+            ))}
+          </svg>
+        </div>
+        {legend}
+      </div>
+    );
+  }
+
+  // ── Fallback: schematic placeholder grid ───────────────────────────
   const corridorY = PAD + ROOM_H;
 
   return (
@@ -92,13 +186,7 @@ export default function FloorPlan({
           })}
         </svg>
       </div>
-      <div className="legend">
-        <span className="sw"><span className="chip" /> Available</span>
-        <span className="sw"><span className="chip sel" /> Selected</span>
-        <span className="sw"><span className="chip prem" /> Premium floor</span>
-        <span className="sw"><span className="chip taken" /> Occupied</span>
-        <span className="sw" style={{ marginLeft: "auto" }}>Prices {furnished ? "furnished" : "unfurnished"} · {furnished ? "incl. furniture" : "set furnishing & term above"}</span>
-      </div>
+      {legend}
     </div>
   );
 }

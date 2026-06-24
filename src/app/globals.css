@@ -124,6 +124,20 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .legend .chip.sel{background:var(--forest-100);border-color:var(--forest-600)}
 .legend .chip.prem{background:#F3EAD6;border-color:var(--brass-600)}
 .legend .chip.taken{background:#ECE5D6;border-color:var(--linen)}
+.legend .chip.conf{background:var(--walnut-800);border-color:var(--walnut-900)}
+
+/* traced real plans — solid floor fill, offices punch through brighter */
+.plan-fill{fill:var(--sand);stroke:none}
+.plan.traced .room rect{fill:var(--ivory)}
+.plan.traced .room:hover rect{fill:var(--forest-100);stroke:var(--forest-400)}
+.plan.traced .room.sel rect{fill:var(--forest-100);stroke:var(--forest-600);stroke-width:3.4}
+.plan.traced .room .code{font-size:21px}
+.plan.traced .room .rent{font-size:12px}
+.plan.traced .room.sel .code,.plan.traced .room.sel .rent{fill:var(--forest-800)}
+/* display-only shared amenities (e.g. conference) — brown, white text */
+.plan-fixed rect{fill:var(--walnut-800);stroke:var(--walnut-900);stroke-width:2}
+.plan-fixed .ff-label{font-family:var(--font-body);font-weight:600;font-size:13px;letter-spacing:.04em;fill:var(--cream)}
+.plan-fixed .ff-sub{font-family:var(--font-body);font-size:10.5px;fill:var(--brass-300)}
 
 /* sticky selection bar */
 .selbar{position:fixed;left:0;right:0;bottom:0;background:var(--walnut-800);color:var(--cream);
