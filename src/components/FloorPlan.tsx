@@ -73,12 +73,11 @@ export default function FloorPlan({
   // ── Real traced plan ───────────────────────────────────────────────
   if (traced) {
     const byCode = new Map(offices.map((o) => [o.code, o]));
-    const [vw, vh] = traced.vb;
 
     return (
       <div className="plan-shell">
         <div className="plan traced">
-          <svg viewBox={`0 0 ${vw} ${vh}`} role="img" aria-label="Floor plan">
+          <svg viewBox={traced.vb} role="img" aria-label="Floor plan">
             <polygon className="plan-fill" points={traced.fill} />
 
             {traced.fixed.map((f, i) => {
@@ -108,7 +107,11 @@ export default function FloorPlan({
                   onClick={() => !o.taken && onToggle(o.slug)}
                   aria-label={`${o.code} ${o.taken ? "occupied" : money(price) + " per month"}${isSel ? " (selected)" : ""}`}
                 >
-                  <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={7} />
+                  {r.points ? (
+                    <polygon points={r.points} />
+                  ) : (
+                    <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={7} />
+                  )}
                   {isSel && (
                     <g>
                       <circle cx={r.x + r.w - 18} cy={r.y + 18} r={9} className="sel-dot" />
