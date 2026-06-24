@@ -5,35 +5,15 @@
  * payments are intentionally failing so the admin has something to act on.
  * No DB required — swap for Supabase queries later behind the same shapes.
  */
-import { OFFICES, ADD_ONS } from "@/lib/inventory";
+import { OFFICES } from "@/lib/inventory";
 import { quote, type Term } from "@/lib/engine";
 import { rooms, nextDateISO } from "@/lib/portal/mock";
+import { activeLeases, type Occupancy, type PayStatus } from "@/lib/occupancy";
 
 export const money = (cents: number) => "$" + Math.round(cents / 100).toLocaleString();
 const dollars = (n: number) => Math.round(n * 100);
 
-type LeaseSeed = {
-  id: string;
-  org: string;
-  contact: string;
-  email: string;
-  officeSlugs: string[];
-  addOnSlugs: string[];
-  furnished: boolean;
-  term: Term;
-  since: string;
-};
-
-const LEASES: LeaseSeed[] = [
-  { id: "WG-2026-0142", org: "Caldwell & Associates", contact: "Jane Caldwell", email: "jane@caldwellpllc.com", officeSlugs: ["2001-main-p1", "2001-main-p2", "2001-main-p3"], addOnSlugs: ["conf-254"], furnished: true, term: 24, since: "Apr 2026" },
-  { id: "WG-2026-0118", org: "Delta Engineering", contact: "Marcus Reed", email: "mreed@deltaeng.com", officeSlugs: ["2001-main-b1", "2001-main-b2", "2001-main-b3", "2001-main-b4"], addOnSlugs: ["server-it", "storage-a"], furnished: false, term: 36, since: "Jan 2026" },
-  { id: "WG-2026-0155", org: "Magnolia Wealth", contact: "Susan Pike", email: "spike@magnoliawealth.com", officeSlugs: ["2001-second-a", "2001-second-b"], addOnSlugs: [], furnished: true, term: 12, since: "May 2026" },
-  { id: "WG-2026-0103", org: "Pine & Co.", contact: "Aaron Pine", email: "aaron@pineco.law", officeSlugs: ["1993-main-o1"], addOnSlugs: [], furnished: true, term: 12, since: "Dec 2025" },
-  { id: "WG-2026-0149", org: "Ridgeland Legal Group", contact: "Tina Holloway", email: "tina@ridgelandlegal.com", officeSlugs: ["2001-second-c", "2001-second-e"], addOnSlugs: ["flex"], furnished: false, term: 24, since: "Apr 2026" },
-];
-
 const officeBySlug = new Map(OFFICES.map((o) => [o.slug, o]));
-const addOnBySlug = new Map(ADD_ONS.map((a) => [a.slug, a]));
 
 export type Tenant = {
   id: string;
@@ -46,30 +26,33 @@ export type Tenant = {
   term: Term;
   since: string;
   netMonthlyCents: number;
+  confHours: number;
+  pay: PayStatus;
 };
 
-export const tenants: Tenant[] = LEASES.map((l) => {
-  const offices = l.officeSlugs.map((s) => officeBySlug.get(s)).filter(Boolean) as typeof OFFICES;
-  const addRates = l.addOnSlugs.map((s) => addOnBySlug.get(s)?.rate ?? 0);
-  const q = quote({ officeBaseRates: offices.map((o) => o.rate), addOnRates: addRates, furnished: l.furnished, term: l.term });
-  return {
-    id: l.id,
-    org: l.org,
-    contact: l.contact,
-    email: l.email,
-    offices: offices.map((o) => ({ slug: o.slug, code: o.code })),
-    officeCount: offices.length,
-    furnished: l.furnished,
-    term: l.term,
-    since: l.since,
-    netMonthlyCents: dollars(q.netMonthly),
-  };
-});
+/** Active tenants at the given occupancy, with money & conf hours from the engine. */
+export function tenantsFor(occ: Occupancy): Tenant[] {
+  return activeLeases(occ).map((l) => {
+    const offices = l.officeSlugs.map((s) => officeBySlug.get(s)).filter(Boolean) as typeof OFFICES;
+    const q = quote({ officeBaseRates: offices.map((o) => o.rate), addOnRates: [], furnished: l.furnished, term: l.term });
+    return {
+      id: l.id,
+      org: l.org,
+      contact: l.contact,
+      email: l.email,
+      offices: offices.map((o) => ({ slug: o.slug, code: o.code })),
+      officeCount: offices.length,
+      furnished: l.furnished,
+      term: l.term,
+      since: l.since,
+      netMonthlyCents: dollars(q.netMonthly),
+      confHours: q.confHours,
+      pay: l.pay,
+    };
+  });
+}
 
 /* --- unit occupancy across the whole building --- */
-const leasedMap = new Map<string, Tenant>();
-for (const t of tenants) for (const o of t.offices) leasedMap.set(o.slug, t);
-
 export type Unit = {
   slug: string;
   code: string;
@@ -79,14 +62,18 @@ export type Unit = {
   tenant: string | null;
 };
 
-export const units: Unit[] = OFFICES.map((o) => ({
-  slug: o.slug,
-  code: o.code,
-  floorId: o.floorId,
-  sqft: o.sqft,
-  status: leasedMap.has(o.slug) ? "leased" : "available",
-  tenant: leasedMap.get(o.slug)?.org ?? null,
-}));
+export function unitsFor(occ: Occupancy): Unit[] {
+  const leasedMap = new Map<string, string>();
+  for (const t of tenantsFor(occ)) for (const o of t.offices) leasedMap.set(o.slug, t.org);
+  return OFFICES.map((o) => ({
+    slug: o.slug,
+    code: o.code,
+    floorId: o.floorId,
+    sqft: o.sqft,
+    status: leasedMap.has(o.slug) ? "leased" : "available",
+    tenant: leasedMap.get(o.slug) ?? null,
+  }));
+}
 
 export const floorLabels: Record<string, string> = {
   "1993-main": "1993 · Main",
@@ -96,23 +83,33 @@ export const floorLabels: Record<string, string> = {
   "2001-basement": "2001 · Basement (Storage)",
 };
 
-/* --- building-wide invoices, with payment errors to act on --- */
+/* --- building-wide invoices (one per active tenant, current period) --- */
 export type AdminInvoice = {
   id: string;
   tenant: string;
   periodLabel: string;
   amountCents: number;
-  status: "paid" | "due" | "failed" | "overdue";
+  status: PayStatus;
   detail: string;
 };
 
-export const adminInvoices: AdminInvoice[] = [
-  { id: "WG-INV-0612-A", tenant: "Caldwell & Associates", periodLabel: "June 2026", amountCents: tenants[0].netMonthlyCents, status: "paid", detail: "ACH · Jun 1" },
-  { id: "WG-INV-0612-B", tenant: "Delta Engineering", periodLabel: "June 2026", amountCents: tenants[1].netMonthlyCents, status: "paid", detail: "ACH · Jun 1" },
-  { id: "WG-INV-0612-C", tenant: "Magnolia Wealth", periodLabel: "June 2026", amountCents: tenants[2].netMonthlyCents, status: "overdue", detail: "Unpaid · 9 days past due" },
-  { id: "WG-INV-0612-D", tenant: "Pine & Co.", periodLabel: "June 2026", amountCents: tenants[3].netMonthlyCents, status: "failed", detail: "Card declined (insufficient funds) · retry 3 of 4" },
-  { id: "WG-INV-0612-E", tenant: "Ridgeland Legal Group", periodLabel: "June 2026", amountCents: tenants[4].netMonthlyCents, status: "due", detail: "Scheduled · drafts Jun 1" },
-];
+const PAY_DETAIL: Record<PayStatus, string> = {
+  paid: "ACH · Jun 1",
+  due: "Scheduled · drafts Jun 1",
+  failed: "Card declined (insufficient funds) · retry 3 of 4",
+  overdue: "Unpaid · 9 days past due",
+};
+
+export function adminInvoicesFor(occ: Occupancy): AdminInvoice[] {
+  return tenantsFor(occ).map((t, i) => ({
+    id: `WG-INV-0626-${String(i + 1).padStart(2, "0")}`,
+    tenant: t.org,
+    periodLabel: "June 2026",
+    amountCents: t.netMonthlyCents,
+    status: t.pay,
+    detail: PAY_DETAIL[t.pay],
+  }));
+}
 
 /* --- conference bookings across all rooms (next ~7 days) --- */
 export type AdminBooking = {
@@ -124,29 +121,49 @@ export type AdminBooking = {
   end: string;
 };
 
-export const adminBookings: AdminBooking[] = [
-  { id: "abk_1", roomId: "oak", tenant: "Caldwell & Associates", dateISO: nextDateISO(1), start: "09:00", end: "10:30" },
-  { id: "abk_2", roomId: "magnolia", tenant: "Delta Engineering", dateISO: nextDateISO(1), start: "13:00", end: "14:00" },
-  { id: "abk_3", roomId: "oak", tenant: "Magnolia Wealth", dateISO: nextDateISO(2), start: "11:00", end: "12:00" },
-  { id: "abk_4", roomId: "study", tenant: "Ridgeland Legal Group", dateISO: nextDateISO(2), start: "15:00", end: "16:30" },
-  { id: "abk_5", roomId: "oak", tenant: "Delta Engineering", dateISO: nextDateISO(3), start: "10:00", end: "12:00" },
-  { id: "abk_6", roomId: "magnolia", tenant: "Caldwell & Associates", dateISO: nextDateISO(4), start: "09:30", end: "10:30" },
-  { id: "abk_7", roomId: "study", tenant: "Pine & Co.", dateISO: nextDateISO(5), start: "14:00", end: "15:00" },
+const SLOTS: [string, string][] = [
+  ["09:00", "10:30"], ["13:00", "14:00"], ["11:00", "12:00"],
+  ["15:00", "16:30"], ["10:00", "12:00"], ["09:30", "10:30"], ["14:00", "15:00"],
 ];
+
+export function adminBookingsFor(occ: Occupancy): AdminBooking[] {
+  const ten = tenantsFor(occ);
+  const roomIds = rooms.map((r) => r.id);
+  const out: AdminBooking[] = [];
+  // ~half the active tenants have a booking in the next week, spread across rooms/days
+  ten.forEach((t, i) => {
+    if (i % 2 !== 0) return;
+    const slot = SLOTS[i % SLOTS.length];
+    out.push({
+      id: `abk_${i}`,
+      roomId: roomIds[i % roomIds.length],
+      tenant: t.org,
+      dateISO: nextDateISO((i % 5) + 1),
+      start: slot[0],
+      end: slot[1],
+    });
+  });
+  return out;
+}
 
 export { rooms };
 
 /* --- KPI rollups --- */
-const totalOffices = OFFICES.length;
-const leasedCount = units.filter((u) => u.status === "leased").length;
-
-export const kpis = {
-  totalOffices,
-  leasedCount,
-  availableCount: totalOffices - leasedCount,
-  occupancyPct: Math.round((leasedCount / totalOffices) * 100),
-  mrrCents: tenants.reduce((s, t) => s + t.netMonthlyCents, 0),
-  activeTenants: tenants.length,
-  paymentIssues: adminInvoices.filter((i) => i.status === "failed" || i.status === "overdue").length,
-  bookingsThisWeek: adminBookings.length,
-};
+export function kpisFor(occ: Occupancy) {
+  const ten = tenantsFor(occ);
+  const u = unitsFor(occ);
+  const inv = adminInvoicesFor(occ);
+  const totalOffices = OFFICES.length;
+  const leasedCount = u.filter((x) => x.status === "leased").length;
+  return {
+    totalOffices,
+    leasedCount,
+    availableCount: totalOffices - leasedCount,
+    occupancyPct: Math.round((leasedCount / totalOffices) * 100),
+    mrrCents: ten.reduce((s, t) => s + t.netMonthlyCents, 0),
+    activeTenants: ten.length,
+    confHoursAllotted: ten.reduce((s, t) => s + t.confHours, 0),
+    paymentIssues: inv.filter((i) => i.status === "failed" || i.status === "overdue").length,
+    bookingsThisWeek: adminBookingsFor(occ).length,
+  };
+}

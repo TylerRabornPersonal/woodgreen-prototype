@@ -6,7 +6,7 @@ import FloorPlan from "./FloorPlan";
 import type { Floor, Office, AddOn } from "@/lib/inventory";
 import { quote, officeListPrice, addOnListPrice, money, type Term } from "@/lib/engine";
 import { defaultOverrides, loadOverrides, toEngineConfig, baseFor } from "@/lib/pricing/store";
-import { applyOccupancy, occupiedSlugs, type Occupancy } from "@/lib/occupancy";
+import { applyOccupancy, loadOccupancy, DEFAULT_OCCUPANCY, type Occupancy } from "@/lib/occupancy";
 
 export default function HomeExperience({
   floors,
@@ -28,7 +28,18 @@ export default function HomeExperience({
   const [furnished, setFurnished] = useState(false);
   const [term, setTerm] = useState<Term>(12);
   const [addonSel, setAddonSel] = useState<Set<string>>(new Set());
-  const [occupancy, setOccupancy] = useState<Occupancy>("live");
+  const [occupancy, setOccupancy] = useState<Occupancy>(DEFAULT_OCCUPANCY);
+  // occupancy is set in the operator console; the public plan just reflects it
+  useEffect(() => {
+    setOccupancy(loadOccupancy());
+    const refresh = () => setOccupancy(loadOccupancy());
+    window.addEventListener("wg-occupancy", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("wg-occupancy", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
 
   const floor = floors.find((f) => f.id === activeFloor) ?? floors[0];
 
@@ -39,13 +50,8 @@ export default function HomeExperience({
   );
   const allOfficesBase = useMemo(() => Object.values(officesByFloorBase).flat(), [officesByFloorBase]);
 
-  // demo occupancy overlay (footer control); "live" = real inventory taken flags
+  // reflect the operator-console occupancy on the public plan
   const officesByFloorView = useMemo(() => applyOccupancy(officesByFloorBase, occupancy), [officesByFloorBase, occupancy]);
-  const changeOccupancy = (occ: Occupancy) => {
-    setOccupancy(occ);
-    const taken = occupiedSlugs(officesByFloorBase, occ);
-    setSelected((prev) => new Set([...prev].filter((s) => !taken.has(s)))); // drop now-occupied picks
-  };
 
   const toggleOffice = (slug: string) =>
     setSelected((p) => {
@@ -148,7 +154,7 @@ export default function HomeExperience({
             </div>
           </div>
 
-          <FloorPlan offices={officesByFloorView[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} cfg={cfg} term={term} occupancy={occupancy} onOccupancyChange={changeOccupancy} />
+          <FloorPlan offices={officesByFloorView[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} cfg={cfg} term={term} />
         </div>
       </section>
 

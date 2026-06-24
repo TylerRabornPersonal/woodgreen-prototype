@@ -4,7 +4,8 @@
  * across weeks. PRODUCTION: replace with the room's Google Calendar (see
  * woodgreen-portal-plan.md §10) — list/insert events + free/busy checks.
  */
-import { adminBookings, type AdminBooking } from "./mock";
+import { adminBookingsFor, type AdminBooking } from "./mock";
+import { DEFAULT_OCCUPANCY } from "@/lib/occupancy";
 
 export type ConfBooking = AdminBooking; // { id, roomId, tenant, dateISO, start, end }
 
@@ -21,7 +22,7 @@ function read(): ConfBooking[] | null {
 }
 
 export function loadConf(): ConfBooking[] {
-  return read() ?? adminBookings.map((b) => ({ ...b }));
+  return read() ?? adminBookingsFor(DEFAULT_OCCUPANCY).map((b) => ({ ...b }));
 }
 
 export function saveConf(b: ConfBooking[]) {

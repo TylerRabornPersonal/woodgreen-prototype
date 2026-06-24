@@ -5,7 +5,8 @@
  * table with start/end + status.
  */
 import { OFFICES } from "@/lib/inventory";
-import { floorLabels, tenants as currentTenants } from "@/lib/admin/mock";
+import { floorLabels, tenantsFor } from "@/lib/admin/mock";
+import { DEFAULT_OCCUPANCY, type Occupancy } from "@/lib/occupancy";
 
 export type PastTenant = {
   id: string;
@@ -68,7 +69,7 @@ export type Tenancy = {
   current: boolean;
 };
 
-export function tenancyForOffice(slug: string): Tenancy[] {
+export function tenancyForOffice(slug: string, occ: Occupancy = DEFAULT_OCCUPANCY): Tenancy[] {
   const rows: Tenancy[] = PAST_TENANTS.filter((p) => p.officeSlugs.includes(slug)).map((p) => ({
     org: p.org,
     contact: p.contact,
@@ -77,7 +78,7 @@ export function tenancyForOffice(slug: string): Tenancy[] {
     endISO: p.endISO,
     current: false,
   }));
-  for (const t of currentTenants) {
+  for (const t of tenantsFor(occ)) {
     if (t.offices.some((o) => o.slug === slug)) {
       rows.push({ org: t.org, contact: t.contact, term: t.term, startISO: parseSince(t.since), endISO: null, current: true });
     }

@@ -149,11 +149,11 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 /* occupied offices must read as occupied on traced floors too (beat .plan.traced .room rect) */
 .plan.traced .room.taken rect,.plan.traced .room.taken polygon{fill:#ECE5D6;stroke:var(--linen)}
 .plan.traced .room.taken:hover rect,.plan.traced .room.taken:hover polygon{fill:#ECE5D6;stroke:var(--linen)}
-/* footer demo-occupancy control */
-.legend .occ-control{gap:8px}
-.occ-control-label{font-size:11px;color:var(--drab)}
+/* demo-occupancy control (operator console header) */
+.occ-control{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.occ-control-label{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--drab);font-weight:600}
 .seg.seg-xs{padding:3px}
-.seg.seg-xs button{padding:3px 9px;font-size:11px}
+.seg.seg-xs button{padding:4px 11px;font-size:12px}
 /* display-only shared amenities (e.g. conference) — brown, white text */
 .plan-fixed rect{fill:var(--walnut-800);stroke:var(--walnut-900);stroke-width:2}
 .plan-fixed .ff-label{font-family:var(--font-body);font-weight:600;font-size:13px;letter-spacing:.04em;fill:var(--cream)}

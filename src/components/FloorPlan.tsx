@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import type { Office } from "@/lib/inventory";
 import { officeListPrice, money, CONFIG, type EngineConfig, type Term } from "@/lib/engine";
 import { tracedPlanFor } from "@/lib/floorplans";
-import { OCCUPANCY_PRESETS, occupancyLabel, type Occupancy } from "@/lib/occupancy";
 
 /**
  * 2D floor plan. Where a traced plan exists for the floor (see lib/floorplans),
@@ -28,8 +27,6 @@ export default function FloorPlan({
   furnished = false,
   cfg = CONFIG,
   term = 12,
-  occupancy,
-  onOccupancyChange,
 }: {
   offices: Office[];
   selected: Set<string>;
@@ -37,8 +34,6 @@ export default function FloorPlan({
   furnished?: boolean;
   cfg?: EngineConfig;
   term?: Term;
-  occupancy?: Occupancy;
-  onOccupancyChange?: (o: Occupancy) => void;
 }) {
   const traced = tracedPlanFor(offices[0]?.floorId);
   // Term discount shown live on the plan, mirroring how furnishing already adjusts price.
@@ -73,18 +68,6 @@ export default function FloorPlan({
         <span className="sw"><span className="chip prem" /> Premium floor</span>
       )}
       <span className="sw"><span className="chip taken" /> Occupied</span>
-      {onOccupancyChange && (
-        <span className="sw occ-control">
-          <span className="occ-control-label">Demo occupancy</span>
-          <span className="seg seg-xs">
-            {OCCUPANCY_PRESETS.map((v) => (
-              <button key={String(v)} className={occupancy === v ? "on" : ""} onClick={() => onOccupancyChange(v)}>
-                {occupancyLabel(v)}
-              </button>
-            ))}
-          </span>
-        </span>
-      )}
       <span className="sw" style={{ marginLeft: "auto" }}>
         Prices {furnished ? "furnished" : "unfurnished"} · {furnished ? "incl. furniture" : "set furnishing & term above"}
       </span>

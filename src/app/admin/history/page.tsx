@@ -8,8 +8,10 @@ import {
   fmtMonth,
   tenancyForOffice,
 } from "@/lib/admin/history";
+import { OccupancyControl, useOccupancy } from "@/components/admin/OccupancyControl";
 
 export default function HistoryPage() {
+  const [occ, setOcc] = useOccupancy();
   const [query, setQuery] = useState("");
   const [officeSlug, setOfficeSlug] = useState(ALL_OFFICE_OPTIONS[0]?.slug ?? "");
 
@@ -23,7 +25,7 @@ export default function HistoryPage() {
     [q],
   );
 
-  const timeline = useMemo(() => tenancyForOffice(officeSlug), [officeSlug]);
+  const timeline = useMemo(() => tenancyForOffice(officeSlug, occ), [officeSlug, occ]);
 
   return (
     <div>
@@ -32,6 +34,7 @@ export default function HistoryPage() {
           <h1 className="portal-h1">Tenant history</h1>
           <p className="portal-sub">{PAST_TENANTS.length} past tenancies on record</p>
         </div>
+        <OccupancyControl occ={occ} onChange={setOcc} />
       </header>
 
       {/* by office */}

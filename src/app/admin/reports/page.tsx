@@ -1,6 +1,7 @@
 "use client";
 
-import { units, tenants, adminBookings, rooms, kpis, floorLabels, money } from "@/lib/admin/mock";
+import { unitsFor, tenantsFor, adminBookingsFor, rooms, kpisFor, floorLabels, money } from "@/lib/admin/mock";
+import { OccupancyControl, useOccupancy } from "@/components/admin/OccupancyControl";
 
 function downloadCSV(filename: string, rows: (string | number)[][]) {
   const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -14,6 +15,12 @@ function downloadCSV(filename: string, rows: (string | number)[][]) {
 }
 
 export default function ReportsPage() {
+  const [occ, setOcc] = useOccupancy();
+  const units = unitsFor(occ);
+  const tenants = tenantsFor(occ);
+  const adminBookings = adminBookingsFor(occ);
+  const kpis = kpisFor(occ);
+
   const occupancyCSV = () =>
     downloadCSV("woodgreen-occupancy.csv", [
       ["Office", "Floor", "SF", "Status", "Tenant"],
@@ -52,6 +59,7 @@ export default function ReportsPage() {
           <h1 className="portal-h1">Reports</h1>
           <p className="portal-sub">Pull a snapshot of occupancy, revenue, tenants, or bookings</p>
         </div>
+        <OccupancyControl occ={occ} onChange={setOcc} />
       </header>
 
       <div className="report-grid">

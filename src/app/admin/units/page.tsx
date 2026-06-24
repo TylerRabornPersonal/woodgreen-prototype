@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { units, floorLabels } from "@/lib/admin/mock";
+import { unitsFor, floorLabels } from "@/lib/admin/mock";
+import { OccupancyControl, useOccupancy } from "@/components/admin/OccupancyControl";
 
 const FLOORS = Object.keys(floorLabels);
 
 export default function UnitsPage() {
+  const [occ, setOcc] = useOccupancy();
   const [status, setStatus] = useState<"all" | "leased" | "available">("all");
   const [floor, setFloor] = useState<string>("all");
 
+  const units = unitsFor(occ);
   const filtered = units.filter(
     (u) => (status === "all" || u.status === status) && (floor === "all" || u.floorId === floor),
   );
@@ -21,6 +24,7 @@ export default function UnitsPage() {
           <h1 className="portal-h1">Units</h1>
           <p className="portal-sub">{leased} leased · {units.length - leased} available · {units.length} total offices</p>
         </div>
+        <OccupancyControl occ={occ} onChange={setOcc} />
       </header>
 
       <div className="filters">

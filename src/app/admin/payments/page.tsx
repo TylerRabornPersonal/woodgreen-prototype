@@ -1,4 +1,7 @@
-import { adminInvoices, money, kpis } from "@/lib/admin/mock";
+"use client";
+
+import { adminInvoicesFor, money, kpisFor } from "@/lib/admin/mock";
+import { OccupancyControl, useOccupancy } from "@/components/admin/OccupancyControl";
 
 const STATUS_LABEL: Record<string, string> = {
   paid: "Paid",
@@ -8,6 +11,9 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function PaymentsPage() {
+  const [occ, setOcc] = useOccupancy();
+  const adminInvoices = adminInvoicesFor(occ);
+  const kpis = kpisFor(occ);
   const collectedCents = adminInvoices.filter((i) => i.status === "paid").reduce((s, i) => s + i.amountCents, 0);
   const atRiskCents = adminInvoices.filter((i) => i.status === "failed" || i.status === "overdue").reduce((s, i) => s + i.amountCents, 0);
 
@@ -18,6 +24,7 @@ export default function PaymentsPage() {
           <h1 className="portal-h1">Payments</h1>
           <p className="portal-sub">June 2026 billing cycle · {kpis.paymentIssues} issue{kpis.paymentIssues === 1 ? "" : "s"} to resolve</p>
         </div>
+        <OccupancyControl occ={occ} onChange={setOcc} />
       </header>
 
       <div className="kpi-grid three">

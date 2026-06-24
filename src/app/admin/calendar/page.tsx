@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { rooms, tenants } from "@/lib/admin/mock";
+import { rooms, tenantsFor } from "@/lib/admin/mock";
+import { OccupancyControl, useOccupancy } from "@/components/admin/OccupancyControl";
 import {
   loadConf,
   saveConf,
@@ -15,6 +16,8 @@ import {
 } from "@/lib/admin/conf-store";
 
 export default function CalendarPage() {
+  const [occ, setOcc] = useOccupancy();
+  const tenants = tenantsFor(occ);
   const [ready, setReady] = useState(false);
   const [bookings, setBookings] = useState<ConfBooking[]>([]);
   const [weekOffset, setWeekOffset] = useState(0);
@@ -23,7 +26,7 @@ export default function CalendarPage() {
   // add-meeting form
   const [roomId, setRoomId] = useState(rooms[0].id);
   const [who, setWho] = useState<"tenant" | "other">("tenant");
-  const [tenantOrg, setTenantOrg] = useState(tenants[0].org);
+  const [tenantOrg, setTenantOrg] = useState(tenants[0]?.org ?? "");
   const [otherName, setOtherName] = useState("");
   const [dateISO, setDateISO] = useState("");
   const [start, setStart] = useState("10:00");
@@ -80,7 +83,10 @@ export default function CalendarPage() {
           <h1 className="portal-h1">Conference calendar</h1>
           <p className="portal-sub">{rooms.length} rooms · click a booking to remove it</p>
         </div>
-        <button className="btn btn-pop" onClick={openModal}>+ Add meeting</button>
+        <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+          <OccupancyControl occ={occ} onChange={setOcc} />
+          <button className="btn btn-pop" onClick={openModal}>+ Add meeting</button>
+        </div>
       </header>
 
       <div className="cal-nav">
