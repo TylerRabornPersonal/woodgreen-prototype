@@ -41,7 +41,7 @@ export const FLOORS: Floor[] = [
   { id: "1993-main", building: "1993", level: 1, label: "1993 Building ·Main Floor", short: "1993 · Main", premium: false },
   { id: "1993-second", building: "1993", level: 2, label: "1993 Building ·Second Floor", short: "1993 · 2nd", premium: false },
   { id: "2001-main", building: "2001", level: 1, label: "2001 Building ·Main Floor", short: "2001 · Main", premium: false },
-  { id: "2001-second", building: "2001", level: 2, label: "2001 Building ·Second Floor", short: "2001 · 2nd (Premium)", premium: true },
+  { id: "2001-second", building: "2001", level: 2, label: "2001 Building ·Second Floor", short: "2001 · 2nd", premium: true },
   { id: "2001-basement", building: "2001", level: 0, label: "2001 Building ·Basement (Storage)", short: "2001 · Basement", premium: false },
 ];
 
