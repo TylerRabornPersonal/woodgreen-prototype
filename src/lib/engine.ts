@@ -5,6 +5,8 @@
  * seed rows; swap to DB-driven config later without changing call sites.
  */
 
+export type ConfHourTier = { min: number; hours: number };
+
 export type EngineConfig = {
   listMult: number;
   furnishedMult: number;
@@ -12,6 +14,8 @@ export type EngineConfig = {
   multiPerOffice: number;
   multiCap: number;
   termDiscount: Record<number, number>;
+  /** Monthly included conference hours per office by list-price tier (sorted high→low). */
+  confHourTiers: ConfHourTier[];
   overageStd: number;
   overageBoardroom: number;
 };
@@ -24,6 +28,15 @@ export const CONFIG: EngineConfig = {
   multiCap: 0.1, // capped at 10%
   // 1.5% per 6-month step beyond 12 months.
   termDiscount: { 12: 0, 18: 0.015, 24: 0.03, 30: 0.045, 36: 0.06 },
+  // Included conference hours/mo per office, sized for TWO shared conference
+  // rooms (previously implied ~3, which over-allocated). Higher-priced offices
+  // earn a larger monthly bank; sorted high→low for lookup.
+  confHourTiers: [
+    { min: 900, hours: 10 },
+    { min: 725, hours: 8 },
+    { min: 575, hours: 6 },
+    { min: 0, hours: 4 },
+  ],
   overageStd: 25, // $/hr standard room
   overageBoardroom: 35, // $/hr boardroom
 };
@@ -46,11 +59,9 @@ export function addOnListPrice(flatRate: number, cfg: EngineConfig = CONFIG): nu
 }
 
 /** Monthly conference-hour bank an office earns, by its computed price tier. */
-export function confHoursForPrice(price: number): number {
-  if (price >= 750) return 16;
-  if (price >= 600) return 12;
-  if (price >= 475) return 8;
-  return 6;
+export function confHoursForPrice(price: number, cfg: EngineConfig = CONFIG): number {
+  for (const t of cfg.confHourTiers) if (price >= t.min) return t.hours;
+  return 0;
 }
 
 export type QuoteInput = {
@@ -88,7 +99,7 @@ export function quote(input: QuoteInput, cfg: EngineConfig = CONFIG): Quote {
   for (const base of officeBaseRates) {
     const p = officeListPrice(base, furnished, cfg);
     gross += p;
-    confHours += confHoursForPrice(p);
+    confHours += confHoursForPrice(p, cfg);
   }
   for (const rate of addOnRates) {
     gross += addOnListPrice(rate, cfg); // add-ons priced flat, no conf hours

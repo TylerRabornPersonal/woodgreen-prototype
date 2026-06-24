@@ -5,7 +5,7 @@
  * Production: this becomes the `pricing_config` + per-office rate rows in the DB.
  */
 import { OFFICES } from "@/lib/inventory";
-import { CONFIG, type EngineConfig } from "@/lib/engine";
+import { CONFIG, type EngineConfig, type ConfHourTier } from "@/lib/engine";
 
 export type PricingOverrides = {
   officeRates: Record<string, number>; // slug -> unfurnished base $ /mo
@@ -13,6 +13,7 @@ export type PricingOverrides = {
   multiPerOffice: number;
   multiCap: number;
   termDiscount: Record<number, number>;
+  confHourTiers: ConfHourTier[]; // included conf hours/mo per office by price tier
   listMult: number;
   furnishedMult: number; // only the default seed for furnished rates now
 };
@@ -24,6 +25,7 @@ export function defaultOverrides(): PricingOverrides {
     multiPerOffice: CONFIG.multiPerOffice,
     multiCap: CONFIG.multiCap,
     termDiscount: { ...CONFIG.termDiscount },
+    confHourTiers: CONFIG.confHourTiers.map((t) => ({ ...t })),
     listMult: CONFIG.listMult,
     furnishedMult: CONFIG.furnishedMult,
   };
@@ -45,6 +47,7 @@ export function loadOverrides(): PricingOverrides {
       officeRates: { ...base.officeRates, ...(stored.officeRates ?? {}) },
       officeFurnishedRates: { ...base.officeFurnishedRates, ...(stored.officeFurnishedRates ?? {}) },
       termDiscount: { ...base.termDiscount, ...(stored.termDiscount ?? {}) },
+      confHourTiers: stored.confHourTiers ?? base.confHourTiers,
     };
   } catch {
     return base;
@@ -78,6 +81,7 @@ export function toEngineConfig(o: PricingOverrides): EngineConfig {
     multiPerOffice: o.multiPerOffice,
     multiCap: o.multiCap,
     termDiscount: o.termDiscount,
+    confHourTiers: o.confHourTiers,
   };
 }
 

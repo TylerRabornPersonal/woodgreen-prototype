@@ -34,6 +34,8 @@ export default function PricingPage() {
     setOv((p) => ({ ...p, officeRates: { ...p.officeRates, [slug]: v } }));
   const setFurnRate = (slug: string, v: number) =>
     setOv((p) => ({ ...p, officeFurnishedRates: { ...p.officeFurnishedRates, [slug]: v } }));
+  const setTierHours = (i: number, v: number) =>
+    setOv((p) => ({ ...p, confHourTiers: p.confHourTiers.map((t, j) => (j === i ? { ...t, hours: v } : t)) }));
 
   const applyBulk = () => {
     const pct = parseFloat(bulk);
@@ -89,6 +91,15 @@ export default function PricingPage() {
         <div className="price-knobs">
           {TERMS.map((t) => (
             <div className="knob" key={t}><label>{t} months</label><input type="number" step="0.5" value={((ov.termDiscount[t] ?? 0) * 100).toString()} onChange={(e) => setOv((p) => ({ ...p, termDiscount: { ...p.termDiscount, [t]: (parseFloat(e.target.value) || 0) / 100 } }))} /></div>
+          ))}
+        </div>
+        <span className="ctl-label">Included conference hours / mo, by office list price <span style={{ color: "var(--drab)", fontWeight: 400 }}>(sized for 2 shared rooms)</span></span>
+        <div className="price-knobs">
+          {ov.confHourTiers.map((t, i) => (
+            <div className="knob" key={i}>
+              <label>{i === ov.confHourTiers.length - 1 ? `Under $${ov.confHourTiers[i - 1]?.min ?? t.min}` : `$${t.min}+`}</label>
+              <input type="number" step="1" value={t.hours} onChange={(e) => setTierHours(i, parseInt(e.target.value) || 0)} />
+            </div>
           ))}
         </div>
       </div>

@@ -176,19 +176,22 @@ async function main() {
     { months: 36, discount: "0.0600", label: "36 months" },
   ]);
 
-  // conf-hour tiers: priceCents >= threshold → hours (highest first)
+  // conf-hour tiers: priceCents >= threshold → hours (highest first).
+  // Sized for 2 shared conference rooms (mirrors CONFIG.confHourTiers).
   await db.insert(confHourTiers).values([
-    { minPriceCents: 75000, hoursPerMonth: 16 },
-    { minPriceCents: 60000, hoursPerMonth: 12 },
-    { minPriceCents: 47500, hoursPerMonth: 8 },
-    { minPriceCents: 0, hoursPerMonth: 6 },
+    { minPriceCents: 90000, hoursPerMonth: 10 },
+    { minPriceCents: 72500, hoursPerMonth: 8 },
+    { minPriceCents: 57500, hoursPerMonth: 6 },
+    { minPriceCents: 0, hoursPerMonth: 4 },
   ]);
 
   // --- inventory ---
   let officeCount = 0;
   for (const f of FLOORS) {
-    const floorSlug = `${f.building}-${f.level === 1 ? "main" : "second"}`;
-    const short = `${f.building} · ${f.level === 1 ? "Main" : "2nd"}${f.isPremium ? " (Premium)" : ""}`;
+    const levelSlug = f.level === 1 ? "main" : f.level === 2 ? "second" : "basement";
+    const floorSlug = `${f.building}-${levelSlug}`;
+    const levelShort = f.level === 1 ? "Main" : f.level === 2 ? "2nd" : "Basement";
+    const short = `${f.building} · ${levelShort}`;
     const [floorRow] = await db
       .insert(floors)
       .values({

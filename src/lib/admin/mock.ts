@@ -92,7 +92,8 @@ export const floorLabels: Record<string, string> = {
   "1993-main": "1993 · Main",
   "1993-second": "1993 · 2nd",
   "2001-main": "2001 · Main",
-  "2001-second": "2001 · 2nd (Premium)",
+  "2001-second": "2001 · 2nd",
+  "2001-basement": "2001 · Basement (Storage)",
 };
 
 /* --- building-wide invoices, with payment errors to act on --- */
