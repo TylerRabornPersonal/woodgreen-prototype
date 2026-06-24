@@ -45,8 +45,8 @@ export const LEASE_ROSTER: LeaseSeed[] = [
   { id: "WG-2026-0155", org: "Magnolia Wealth", contact: "Susan Pike", email: "spike@magnoliawealth.com", officeSlugs: ["2001-second-a"], furnished: true, term: 12, since: "May 2026", tier: 1, pay: "overdue" },
   { id: "WG-2026-0103", org: "Pine & Co.", contact: "Aaron Pine", email: "aaron@pineco.law", officeSlugs: ["1993-main-o1"], furnished: true, term: 12, since: "Dec 2025", tier: 1, pay: "paid" },
   { id: "WG-2026-0149", org: "Ridgeland Legal Group", contact: "Tina Holloway", email: "tina@ridgelandlegal.com", officeSlugs: ["2001-second-c"], furnished: false, term: 24, since: "Apr 2026", tier: 1, pay: "due" },
-  { id: "WG-2026-0161", org: "Beacon Advisory", contact: "Will Stone", email: "will@beaconadvisory.com", officeSlugs: ["1993-second-o4"], furnished: true, term: 24, since: "Feb 2026", tier: 1, pay: "paid" },
-  { id: "WG-2026-0137", org: "Tupelo Title", contact: "Dana Briggs", email: "dana@tupelotitle.com", officeSlugs: ["1993-main-o9"], furnished: false, term: 12, since: "Mar 2026", tier: 1, pay: "paid" },
+  { id: "WG-2024-0161", org: "Beacon Advisory", contact: "Will Stone", email: "will@beaconadvisory.com", officeSlugs: ["1993-second-o4"], furnished: true, term: 24, since: "Aug 2024", tier: 1, pay: "paid" }, // term ends ~Jul 2026 → in renewal window
+  { id: "WG-2024-0137", org: "Tupelo Title", contact: "Dana Briggs", email: "dana@tupelotitle.com", officeSlugs: ["1993-main-o9"], furnished: false, term: 24, since: "Oct 2024", tier: 1, pay: "paid" }, // term ends ~Sep 2026 → reminder sent
   { id: "WG-2026-0170", org: "Cypress Storage Co.", contact: "Ben Voss", email: "ben@cypressstorage.com", officeSlugs: ["2001-basement-fr"], furnished: false, term: 12, since: "Mar 2026", tier: 1, pay: "paid" },
   { id: "WG-2026-0128", org: "Oakhurst CPA", contact: "Rita Glenn", email: "rita@oakhurstcpa.com", officeSlugs: ["2001-main-p6", "2001-main-p7"], furnished: true, term: 18, since: "May 2026", tier: 1, pay: "failed" },
 

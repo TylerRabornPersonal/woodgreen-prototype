@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { kpisFor, adminInvoicesFor, adminBookingsFor, money } from "@/lib/admin/mock";
+import { kpisFor, adminInvoicesFor, adminBookingsFor, renewalsDueFor, money } from "@/lib/admin/mock";
+import { fmtLongDate } from "@/lib/portal/renewal";
 import { OccupancyControl, useOccupancy } from "@/components/admin/OccupancyControl";
 
 export default function AdminOverview() {
@@ -9,6 +10,7 @@ export default function AdminOverview() {
   const kpis = kpisFor(occ);
   const issues = adminInvoicesFor(occ).filter((i) => i.status === "failed" || i.status === "overdue");
   const bookings = adminBookingsFor(occ);
+  const renewals = renewalsDueFor(occ);
 
   const stats = [
     { label: "Occupancy", num: `${kpis.occupancyPct}%`, sub: `${kpis.leasedCount} of ${kpis.totalOffices} offices leased` },
@@ -62,6 +64,35 @@ export default function AdminOverview() {
         ) : (
           <p className="portal-note">All payments current.</p>
         )}
+      </div>
+
+      <div className="pcard">
+        <div className="pcard-headrow">
+          <span className="pcard-eyebrow">Upcoming renewals · next 120 days</span>
+          <Link href="/admin/leases" className="linklike">Lease timeline</Link>
+        </div>
+        {renewals.length ? (
+          <div className="att-list">
+            {renewals.map((r) => (
+              <div className="att" key={r.tenant}>
+                <div>
+                  <div className="att-tenant">{r.tenant}</div>
+                  <div className="att-detail">
+                    Term ends {fmtLongDate(r.endDate)} · {r.days < 0 ? `${-r.days}d past (holdover)` : `${r.days}d`}
+                    {r.reminderSent ? " · 90-day reminder sent" : ""}
+                    {r.pastNotice ? " · past 60-day notice → auto-renewing" : ""}
+                  </div>
+                </div>
+                <div className="att-right">
+                  <span className="att-amt">{money(r.monthlyCents)} → {money(r.renewMonthlyCents)}/mo</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="portal-note">No renewals due in the next 120 days.</p>
+        )}
+        <p className="portal-note">Reminder emails send 90 days out (Resend, in production); auto-renewal at +3% or the current Fee Schedule unless the tenant opts out by the 60-day mark.</p>
       </div>
 
       <div className="pcard">

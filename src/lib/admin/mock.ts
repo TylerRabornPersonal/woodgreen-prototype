@@ -196,6 +196,41 @@ export function leaseGridFor(occ: Occupancy, monthsCount = 36, anchor: Date = ne
   return { months, rows, totals };
 }
 
+/* --- upcoming lease renewals (next ~120 days) --- */
+const DAY_MS = 86_400_000;
+export type RenewalDue = {
+  tenant: string;
+  contact: string;
+  endDate: Date;
+  days: number; // days until term end (negative = already expired / holdover)
+  reminderSent: boolean; // ≥90 days notice window reached
+  pastNotice: boolean; // ≥60-day mark passed → auto-renews unless tenant opted out
+  monthlyCents: number;
+  renewMonthlyCents: number;
+};
+
+export function renewalsDueFor(occ: Occupancy, withinDays = 120, now: Date = new Date()): RenewalDue[] {
+  return tenantsFor(occ)
+    .map((t) => {
+      const startAbs = sinceToAbs(t.since);
+      const lastMonth = startAbs + t.term - 1; // last leased month (abs)
+      const endDate = new Date(Math.floor(lastMonth / 12), (lastMonth % 12) + 1, 0); // last day of that month
+      const days = Math.ceil((+endDate - +now) / DAY_MS);
+      return {
+        tenant: t.org,
+        contact: t.contact,
+        endDate,
+        days,
+        reminderSent: +now >= +endDate - 90 * DAY_MS,
+        pastNotice: +now >= +endDate - 60 * DAY_MS,
+        monthlyCents: t.netMonthlyCents,
+        renewMonthlyCents: Math.round(t.netMonthlyCents * 1.03),
+      };
+    })
+    .filter((r) => r.days <= withinDays && r.days >= -31)
+    .sort((a, b) => a.days - b.days);
+}
+
 /* --- KPI rollups --- */
 export function kpisFor(occ: Occupancy) {
   const ten = tenantsFor(occ);

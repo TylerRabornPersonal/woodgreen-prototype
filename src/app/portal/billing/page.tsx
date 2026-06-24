@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePortal } from "@/components/portal/PortalProvider";
 import { money } from "@/lib/portal/mock";
+import { effectiveMonthlyCents, fmtLongDate, choiceLabel } from "@/lib/portal/renewal";
 
 function brandFromNumber(digits: string): string {
   if (digits.startsWith("4")) return "Visa";
@@ -12,7 +13,8 @@ function brandFromNumber(digits: string): string {
 }
 
 export default function BillingPage() {
-  const { paymentMethods, addPaymentMethod, removePaymentMethod, setDefaultPaymentMethod, invoices, license } = usePortal();
+  const { paymentMethods, addPaymentMethod, removePaymentMethod, setDefaultPaymentMethod, invoices, license, renewal, renewalChoice } = usePortal();
+  const newRate = effectiveMonthlyCents(renewal, renewalChoice);
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<"card" | "bank">("card");
   const [num, setNum] = useState("");
@@ -40,6 +42,15 @@ export default function BillingPage() {
           <p className="portal-sub">{money(license.netMonthlyCents)}/mo · auto-drafted in advance</p>
         </div>
       </header>
+
+      {renewalChoice !== "pending" && newRate !== renewal.currentMonthlyCents && (
+        <div className="pcard renewal-billing">
+          <span className="pcard-eyebrow">Upcoming rate change · {choiceLabel[renewalChoice]}</span>
+          <div className="prow"><span>Current</span><span>{money(renewal.currentMonthlyCents)}/mo</span></div>
+          <div className="prow"><span>From {fmtLongDate(renewal.renewEffective)}</span><strong>{money(newRate)}/mo</strong></div>
+          <p className="portal-note">Stripe subscription updates automatically on the effective date — no action needed.</p>
+        </div>
+      )}
 
       <div className="pcard">
         <div className="pcard-headrow">

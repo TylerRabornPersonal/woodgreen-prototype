@@ -10,6 +10,13 @@ import {
   type SessionLicense,
   type SessionConfBank,
 } from "@/lib/portal/session";
+import {
+  renewalInfo,
+  loadRenewalChoice,
+  saveRenewalChoice,
+  type RenewalChoice,
+  type RenewalInfo,
+} from "@/lib/portal/renewal";
 
 type PortalState = {
   tenant: SessionTenant;
@@ -22,6 +29,9 @@ type PortalState = {
   confRemaining: number;
   bookingsVersion: number; // bumps when conference bookings change (for the shared calendar)
   isGenerated: boolean; // true if a real flow created this tenant (vs demo)
+  renewal: RenewalInfo;
+  renewalChoice: RenewalChoice;
+  setRenewalChoice: (c: RenewalChoice) => void;
   addPaymentMethod: (m: Omit<PaymentMethod, "id" | "isDefault">) => void;
   removePaymentMethod: (id: string) => void;
   setDefaultPaymentMethod: (id: string) => void;
@@ -60,6 +70,14 @@ export default function PortalProvider({ children }: { children: ReactNode }) {
 
   const confUsed = useMemo(() => bookings.reduce((s, b) => s + b.hours, 0), [bookings]);
   const confRemaining = Math.max(session.confBank.allotted - confUsed, 0);
+
+  const renewal = useMemo(() => renewalInfo(session.license), [session.license]);
+  const [renewalChoice, setRenewalChoiceState] = useState<RenewalChoice>("pending");
+  useEffect(() => setRenewalChoiceState(loadRenewalChoice()), []);
+  const setRenewalChoice = (c: RenewalChoice) => {
+    saveRenewalChoice(c);
+    setRenewalChoiceState(c);
+  };
 
   const addPaymentMethod: PortalState["addPaymentMethod"] = (m) =>
     setPaymentMethods((prev) => {
@@ -103,6 +121,9 @@ export default function PortalProvider({ children }: { children: ReactNode }) {
     confRemaining,
     bookingsVersion,
     isGenerated,
+    renewal,
+    renewalChoice,
+    setRenewalChoice,
     addPaymentMethod,
     removePaymentMethod,
     setDefaultPaymentMethod,

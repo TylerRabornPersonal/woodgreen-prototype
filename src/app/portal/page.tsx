@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePortal } from "@/components/portal/PortalProvider";
 import { money } from "@/lib/portal/mock";
+import { fmtLongDate, choiceLabel } from "@/lib/portal/renewal";
 
 export default function PortalDashboard() {
-  const { confRemaining, paymentMethods, bookings, tenant, license, confBank, invoices, isGenerated } = usePortal();
+  const { confRemaining, paymentMethods, bookings, tenant, license, confBank, invoices, isGenerated, renewal, renewalChoice, setRenewalChoice } = usePortal();
   const due = invoices.find((i) => i.status === "due");
   const defaultPm = paymentMethods.find((p) => p.isDefault);
   const upcoming = bookings.filter((b) => b.dateISO >= new Date().toISOString().slice(0, 10));
@@ -19,6 +20,39 @@ export default function PortalDashboard() {
         </div>
         <span className="portal-status">{license.status}</span>
       </header>
+
+      {renewal.windowOpen && (
+        <div className={`renewal-banner${renewalChoice === "pending" ? " pending" : " decided"}`}>
+          {renewalChoice === "pending" ? (
+            <>
+              <div className="rb-body">
+                <div className="rb-title">Your license ends {fmtLongDate(renewal.endDate)} · {Math.max(renewal.daysToEnd, 0)} days left</div>
+                <p className="rb-text">
+                  To keep your offices, choose below by {fmtLongDate(renewal.noticeDeadline)} (the 60-day mark).
+                  Renewing is the greater of <strong>+3%</strong> or the current rate — <strong>{money(renewal.renewMonthlyCents)}/mo</strong> for another {renewal.renewTermMonths} months,
+                  starting {fmtLongDate(renewal.renewEffective)}. If you do nothing, it auto-renews at that rate.
+                  {renewal.pastNoticeDeadline && " The notice deadline has passed — auto-renewal applies unless you switch to month-to-month."}
+                </p>
+              </div>
+              <div className="rb-actions">
+                <button className="btn btn-pop" onClick={() => setRenewalChoice("renew")}>Renew · {money(renewal.renewMonthlyCents)}/mo</button>
+                <button className="btn btn-accent" onClick={() => setRenewalChoice("auto")}>Enable auto-renewal</button>
+                <button className="btn btn-ghost" onClick={() => setRenewalChoice("mtm")}>Go month-to-month · {money(renewal.mtmMonthlyCents)}/mo</button>
+              </div>
+            </>
+          ) : (
+            <div className="rb-body">
+              <div className="rb-title">✓ {choiceLabel[renewalChoice]}</div>
+              <p className="rb-text">
+                {renewalChoice === "mtm"
+                  ? `Month-to-month at ${money(renewal.mtmMonthlyCents)}/mo begins ${fmtLongDate(renewal.renewEffective)} · 30-day notice to end. Billing updated.`
+                  : `${money(renewal.renewMonthlyCents)}/mo for ${renewal.renewTermMonths} months begins ${fmtLongDate(renewal.renewEffective)}. Billing updated.`}
+                {" "}<button className="linklike" onClick={() => setRenewalChoice("pending")}>Change</button>
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="portal-grid">
         <div className="pcard">

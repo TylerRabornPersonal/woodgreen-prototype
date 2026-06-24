@@ -63,7 +63,7 @@ export const tenant = {
   orgName: "Caldwell & Associates",
   legalName: "Caldwell & Associates, PLLC",
   primaryContact: { name: "Jane Caldwell", email: "jane@caldwellpllc.com" },
-  memberSince: "March 2026",
+  memberSince: "September 2024",
   suiteLabel: "Offices P1, P2, P3 · 2001 Building, Main Floor",
 };
 
@@ -72,8 +72,8 @@ export const license = {
   status: "Active" as const,
   furnished: FURNISHED,
   termMonths: TERM,
-  startDate: "April 1, 2026",
-  endDate: "March 31, 2028",
+  startDate: "September 1, 2024",
+  endDate: "August 31, 2026",
   offices: OFFICES,
   addOns: ADDONS,
   grossMonthlyCents: dollars(q.grossMonthly),

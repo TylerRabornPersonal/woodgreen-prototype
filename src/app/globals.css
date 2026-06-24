@@ -149,6 +149,16 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 /* occupied offices must read as occupied on traced floors too (beat .plan.traced .room rect) */
 .plan.traced .room.taken rect,.plan.traced .room.taken polygon{fill:#ECE5D6;stroke:var(--linen)}
 .plan.traced .room.taken:hover rect,.plan.traced .room.taken:hover polygon{fill:#ECE5D6;stroke:var(--linen)}
+/* renewal notification banner (tenant portal) */
+.renewal-banner{border-radius:var(--r-xl);padding:18px 20px;margin:0 0 18px;box-shadow:var(--shadow-md)}
+.renewal-banner.pending{background:#F3EAD6;border:1px solid var(--brass-600)}
+.renewal-banner.decided{background:var(--forest-100);border:1px solid var(--forest-600)}
+.renewal-banner .rb-title{font-family:var(--font-display);font-size:16px;color:var(--walnut-900);font-weight:500;margin-bottom:4px}
+.renewal-banner .rb-text{font-size:13px;color:var(--ink);line-height:1.55;margin:0}
+.renewal-banner .rb-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.renewal-billing .prow{display:flex;justify-content:space-between;padding:5px 0;font-size:13.5px;border-bottom:1px solid var(--sand)}
+.renewal-billing .prow strong{color:var(--walnut-900)}
+
 /* lease timeline grid */
 .lease-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:0 0 12px;font-size:12px;color:var(--drab)}
 .lease-legend .sw{display:inline-flex;align-items:center;gap:7px}

@@ -33,7 +33,8 @@ export const AGREEMENT_SECTIONS: Section[] = [
     title: "Term",
     body: [
       "2.1 Initial Term. The initial term shall be twelve (12), eighteen (18), twenty-four (24), thirty (30), or thirty-six (36) months as elected by Licensee on Schedule A (the “Initial Term”), commencing on the Commencement Date and ending at 11:59 p.m. Central Time on the last day of the Initial Term.",
-      "2.2 Holdover. Continued use after expiration without a new written agreement shall be month-to-month at one hundred twenty-five percent (125%) of the then-current monthly License Fee, terminable by either Party on thirty (30) days’ written notice.",
+      "2.2 Automatic Renewal. Unless either Party gives written notice of non-renewal at least sixty (60) (i.e., the 60-day mark) days before the end of the then-current term, this Agreement automatically renews for a successive term equal in length to the Initial Term (each, a “Renewal Term”). The monthly License Fee for each Renewal Term shall be the greater of (a) one hundred three percent (103%) of the then-current monthly License Fee or (b) the Licensor’s then-current published Fee Schedule for the licensed offices, furnishing, and term. Licensor will send Licensee a renewal reminder at least ninety (90) days before the end of the term; Licensee may instead elect month-to-month under §2.3 or non-renewal by the notice deadline.",
+      "2.3 Holdover / Month-to-Month. If Licensee elects month-to-month, or continues use after expiration without a renewal or new written agreement, the License shall be month-to-month at one hundred twenty-five percent (125%) of the then-current monthly License Fee, terminable by either Party on thirty (30) days’ written notice.",
     ],
   },
   {
