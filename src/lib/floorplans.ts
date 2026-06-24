@@ -107,26 +107,26 @@ export const TRACED_PLANS: Record<string, TracedPlan> = {
       "496,287.7 496,143.7 608.1,143.7 608.1,120 874.7,120 874.7,143.7 988,143.7 988,386.2 875.8,386.2 875.8,403.8 776.5,403.8 776.5,387 708.1,387 708.1,403.8 608.1,403.8 608.1,386.2 495.3,386.2 495.3,287.7 496,287.7",
     ],
     rooms: {
-      // back row — stretched down +16 to enlarge boxes (B2 rounded rect)
+      // back row — tops flush to the stepped back wall (B2 is L-shaped to follow it)
       B1: { x: 496.0, y: 143.7, w: 84.2, h: 81.2 },
-      B2: { x: 580.2, y: 143.7, w: 63.45, h: 81.9 },
+      B2: { x: 580.2, y: 120.0, w: 63.45, h: 105.6, points: "580.2,143.7 608.1,143.7 608.1,120 643.65,120 643.65,225.6 580.2,225.6" },
       B3: { x: 643.65, y: 120.0, w: 73.45, h: 81.2 },
       B4: { x: 717.1, y: 120.0, w: 48.8, h: 81.2 },
       B5: { x: 765.9, y: 120.0, w: 45.2, h: 81.6 },
-      B6: { x: 811.1, y: 120.0, w: 57.3, h: 81.6 },
-      B7: { x: 868.4, y: 143.7, w: 51.9, h: 80.9 }, // stretched right to touch B8
+      B6: { x: 811.1, y: 120.0, w: 63.6, h: 81.6 }, // extended right, flush to wall step
+      B7: { x: 874.7, y: 143.7, w: 45.6, h: 80.9 }, // pushed over to sit against B6
       B8: { x: 920.3, y: 143.7, w: 67.7, h: 80.9 },
-      // interior — follows B1's lower edge, stretched down
+      // interior — follows B1's lower edge
       I1: { x: 496.0, y: 224.9, w: 53.0, h: 68.7 },
-      // front row — stretched up +16 to enlarge boxes (P7 rounded rect)
+      // front row — bottoms flush to the stepped front wall (P7 is L-shaped to follow it)
       P9: { x: 495.3, y: 306.8, w: 46.9, h: 79.4 },
       P8: { x: 542.2, y: 306.8, w: 45.5, h: 79.4 },
-      P7: { x: 587.7, y: 306.8, w: 55.15, h: 79.4 },
-      P6: { x: 642.85, y: 306.8, w: 60.65, h: 97.0 },
-      P5: { x: 703.5, y: 306.8, w: 73.0, h: 79.4 }, // stretched right to the exterior jut-in
+      P7: { x: 587.7, y: 306.8, w: 55.15, h: 97.0, points: "587.7,306.8 642.85,306.8 642.85,403.8 608.1,403.8 608.1,386.2 587.7,386.2" },
+      P6: { x: 642.85, y: 306.8, w: 65.25, h: 97.0 }, // extended right, flush to the jut-in
+      P5: { x: 708.1, y: 306.8, w: 68.4, h: 79.4 }, // left pulled in; sits in the jut-in
       P4: { x: 776.5, y: 306.8, w: 40.1, h: 97.0 },
-      P3: { x: 816.6, y: 306.8, w: 52.35, h: 97.0 },
-      P2: { x: 868.95, y: 306.8, w: 56.65, h: 79.4 },
+      P3: { x: 816.6, y: 306.8, w: 59.2, h: 97.0 }, // extended right, flush to wall step
+      P2: { x: 875.8, y: 306.8, w: 49.8, h: 79.4 }, // pushed over to sit against P3
       P1: { x: 925.6, y: 306.8, w: 62.4, h: 79.4 },
       // Dedicated conference — selectable rentable room, squeezed between B8 and P1
       CONF: { x: 940.7, y: 224.6, w: 47.3, h: 82.2 },
