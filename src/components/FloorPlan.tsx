@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import type { Office } from "@/lib/inventory";
-import { officeListPrice, money, CONFIG, type EngineConfig } from "@/lib/engine";
+import { officeListPrice, money, CONFIG, type EngineConfig, type Term } from "@/lib/engine";
 import { tracedPlanFor } from "@/lib/floorplans";
 
 /**
@@ -26,14 +26,18 @@ export default function FloorPlan({
   onToggle,
   furnished = false,
   cfg = CONFIG,
+  term = 12,
 }: {
   offices: Office[];
   selected: Set<string>;
   onToggle: (slug: string) => void;
   furnished?: boolean;
   cfg?: EngineConfig;
+  term?: Term;
 }) {
   const traced = tracedPlanFor(offices[0]?.floorId);
+  // Term discount shown live on the plan, mirroring how furnishing already adjusts price.
+  const termFactor = 1 - (cfg.termDiscount[term] ?? 0);
 
   // Placeholder-grid layout — computed unconditionally to keep hook order stable.
   const { rects, width, height } = useMemo(() => {
@@ -95,7 +99,7 @@ export default function FloorPlan({
             {Object.entries(traced.rooms).map(([code, r]) => {
               const o = byCode.get(code);
               if (!o) return null;
-              const price = officeListPrice(o.rate, false, cfg);
+              const price = officeListPrice(o.rate, false, cfg) * termFactor;
               const isSel = selected.has(o.slug);
               const cx = r.x + r.w / 2;
               const cy = r.y + r.h / 2;
@@ -155,7 +159,7 @@ export default function FloorPlan({
           <rect className="bldg-outline" x={4} y={4} width={width - 8} height={height - 8} rx={10} />
           <rect className="corridor" x={PAD} y={corridorY} width={width - PAD * 2} height={CORRIDOR_H} rx={6} />
           {rects.map(({ o, x, y, w, h }) => {
-            const price = officeListPrice(o.rate, false, cfg); // o.rate is already the furnishing-resolved base
+            const price = officeListPrice(o.rate, false, cfg) * termFactor; // o.rate is already the furnishing-resolved base
             const isSel = selected.has(o.slug);
             const cls = `room${o.premium ? " prem" : ""}${o.taken ? " taken" : ""}${isSel ? " sel" : ""}`;
             return (

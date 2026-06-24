@@ -53,7 +53,7 @@ export const TRACED_PLANS: Record<string, TracedPlan> = {
       O3: { x: 248, y: 104, w: 151, h: 222 },
       O1: { x: 630, y: 104, w: 179, h: 181 },
       O2: { x: 814, y: 104, w: 179, h: 181 },
-      O8: { x: 70, y: 312, w: 119, h: 151 },
+      O8: { x: 70, y: 312, w: 119, h: 201 }, // stretched down to meet O7 (5px gap)
       O7: { x: 70, y: 518, w: 185, h: 135 },
       O6: { x: 260, y: 518, w: 125, h: 171 },
       O5: { x: 666, y: 518, w: 137, h: 171 },

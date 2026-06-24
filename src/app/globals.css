@@ -69,7 +69,7 @@ a{color:inherit;text-decoration:none}
 .header-cta{padding:9px 16px;font-size:13px}
 
 /* generic */
-.page{padding:34px 0 80px}
+.page{padding:34px 14px 80px}
 h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter-spacing:-.01em;color:var(--walnut-800);margin:0 0 8px;font-optical-sizing:auto;font-feature-settings:"liga" 1,"dlig" 0}
 .lead{font-size:15px;color:var(--walnut-700);max-width:720px;line-height:1.6;margin:0 0 22px}
 .card{background:var(--cream);border:1px solid var(--linen);border-radius:var(--r-xl);box-shadow:var(--shadow-md)}

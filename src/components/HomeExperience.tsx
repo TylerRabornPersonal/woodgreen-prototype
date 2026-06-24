@@ -138,7 +138,7 @@ export default function HomeExperience({
             </div>
           </div>
 
-          <FloorPlan offices={officesByFloorBase[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} cfg={cfg} />
+          <FloorPlan offices={officesByFloorBase[floor.id] ?? []} selected={selected} onToggle={toggleOffice} furnished={furnished} cfg={cfg} term={term} />
         </div>
       </section>
 
