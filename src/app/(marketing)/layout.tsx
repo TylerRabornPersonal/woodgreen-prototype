@@ -10,7 +10,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <span className="sub">Executive Suites · Madison, Mississippi</span>
           </Link>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <Link href="/portal" className="portal-link">Tenant sign in</Link>
+            <Link href="/login" className="portal-link">Tenant sign in</Link>
             <Link className="btn btn-ghost header-cta" href="/tour">Book a tour</Link>
           </div>
         </div>

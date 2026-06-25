@@ -342,8 +342,8 @@ export default function HomeExperience({
               <a onClick={() => scrollTo("offices")}>Offices</a>
               <a onClick={() => scrollTo("address")}>The address</a>
               <a href="/tour">Book a tour</a>
-              <a href="/portal">Tenant portal</a>
-              <a href="/admin">Operator console</a>
+              <a href="/login">Tenant portal</a>
+              <a href="/login">Operator console</a>
             </div>
           </div>
           <div className="footer-bottom">© 2026 25 Woodgreen Place · Madison, Mississippi</div>
