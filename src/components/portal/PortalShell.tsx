@@ -10,6 +10,7 @@ const NAV = [
   { href: "/portal/agreement", label: "License agreement" },
   { href: "/portal/billing", label: "Billing & payments" },
   { href: "/portal/book", label: "Book a room" },
+  { href: "/portal/requests", label: "Maintenance" },
 ];
 
 export default function PortalShell({ children }: { children: ReactNode }) {

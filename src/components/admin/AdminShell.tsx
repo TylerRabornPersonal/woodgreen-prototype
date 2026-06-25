@@ -9,6 +9,8 @@ const NAV = [
   { href: "/admin/units", label: "Units" },
   { href: "/admin/leases", label: "Lease timeline" },
   { href: "/admin/history", label: "Tenant history" },
+  { href: "/admin/documents", label: "Documents" },
+  { href: "/admin/maintenance", label: "Maintenance" },
   { href: "/admin/pricing", label: "Pricing" },
   { href: "/admin/payments", label: "Payments" },
   { href: "/admin/calendar", label: "Conference calendar" },
