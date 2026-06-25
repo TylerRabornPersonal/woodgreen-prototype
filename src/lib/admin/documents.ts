@@ -64,6 +64,31 @@ export const PROPERTY_DOCS: PropertyDoc[] = [
   { id: "7yr-analysis", title: "25 Woodgreen — 7-Year Analysis", category: "Financials", file: "7yr-analysis.xlsx", type: "xlsx", sizeLabel: "29 KB", dateLabel: "2026" },
 ];
 
+/* ── editable display labels (rename without touching the stored file) ── */
+const TITLES_KEY = "wg_doc_titles";
+
+export function loadDocTitles(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(window.localStorage.getItem(TITLES_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+export function saveDocTitle(id: string, title: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const all = loadDocTitles();
+    if (title.trim()) all[id] = title.trim();
+    else delete all[id];
+    window.localStorage.setItem(TITLES_KEY, JSON.stringify(all));
+    window.dispatchEvent(new CustomEvent("wg-doc-titles"));
+  } catch {
+    /* ignore */
+  }
+}
+
 export function docsByCategory(): { category: DocCategory; docs: PropertyDoc[] }[] {
   return DOC_CATEGORIES.map((category) => ({
     category,

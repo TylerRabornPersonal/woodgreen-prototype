@@ -165,9 +165,20 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .doc-meta{font-size:11.5px;color:var(--drab);margin-top:3px}
 .doc-note{font-size:11.5px;color:var(--ink-muted, var(--drab));margin-top:5px;line-height:1.4;opacity:.85}
 .doc-open{flex:none;align-self:center;font-size:12px;font-weight:600;color:var(--forest-600);white-space:nowrap}
+.doc-card.clickable{cursor:pointer}
 .doc-card.external{cursor:default;opacity:.82}
 .doc-card.external:hover{transform:none;border-color:var(--linen)}
-.doc-ext{flex:none;align-self:center;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--drab);background:var(--sand);border-radius:99px;padding:3px 9px;white-space:nowrap}
+.doc-ext{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--drab);background:var(--sand);border-radius:99px;padding:3px 9px;white-space:nowrap}
+.doc-actions{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.doc-rename-btn{border:none;background:transparent;color:var(--drab);cursor:pointer;font-size:13px;line-height:1;padding:2px}
+.doc-rename-btn:hover{color:var(--forest-600)}
+.doc-rename{width:100%;border:1.5px solid var(--forest-600);border-radius:var(--r-md);padding:5px 8px;font-size:14px;font-family:var(--font-display);color:var(--ink)}
+/* PDF lightbox */
+.doc-viewer{background:var(--cream);border-radius:var(--r-xl);box-shadow:var(--shadow-md);width:min(960px,94vw);height:90vh;display:flex;flex-direction:column;overflow:hidden}
+.doc-viewer-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 16px;border-bottom:1px solid var(--linen)}
+.doc-viewer-title{font-family:var(--font-display);font-weight:500;font-size:16px;color:var(--walnut-800)}
+.doc-viewer-actions{display:flex;align-items:center;gap:16px}
+.doc-frame{flex:1;width:100%;border:0;background:var(--sand)}
 
 /* maintenance & requests */
 .portal-grid.two{grid-template-columns:1fr 1fr}
@@ -199,6 +210,21 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 .mnt-status-badge.scheduled{background:#F3EAD6;color:#7a5a1f}
 .mnt-status-badge.in_progress{background:var(--forest-100);color:var(--forest-800)}
 .mnt-status-badge.completed{background:var(--sand);color:var(--drab)}
+/* priority select border colors */
+.mnt-status.low{border-color:var(--linen)}
+.mnt-status.normal{border-color:var(--forest-400)}
+.mnt-status.high{border-color:var(--brass-600)}
+.mnt-status.urgent{border-color:#9c4a4a}
+/* maintenance subtabs + date filter + invoice cell */
+.subtabs{display:inline-flex;gap:4px;background:var(--sand);border-radius:var(--r-lg);padding:5px;margin:4px 0 16px}
+.subtabs button{border:none;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--walnut-700);padding:7px 16px;border-radius:var(--r-md);cursor:pointer}
+.subtabs button.on{background:var(--walnut-700);color:var(--cream)}
+.date-filter{align-items:center;gap:8px}
+.date-filter select{border:1.5px solid var(--linen);border-radius:var(--r-md);padding:6px 9px;font-size:12.5px;font-family:var(--font-body);background:var(--white);color:var(--ink)}
+.filter-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--drab);font-weight:600}
+.inv-link{font-size:12px;font-weight:600;color:var(--forest-600);white-space:nowrap}
+.inv-upload{border:1px dashed var(--linen);background:transparent;color:var(--drab);font:inherit;font-size:11.5px;padding:5px 10px;border-radius:var(--r-md);cursor:pointer;white-space:nowrap}
+.inv-upload:hover{border-color:var(--forest-400);color:var(--forest-600)}
 
 /* renewal notification banner (tenant portal) */
 .renewal-banner{border-radius:var(--r-xl);padding:18px 20px;margin:0 0 18px;box-shadow:var(--shadow-md)}
@@ -403,7 +429,7 @@ h2.section{font-family:var(--font-display);font-size:30px;font-weight:440;letter
 
 /* ever-present sticky calculator bar */
 .calcbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--forest-700);color:var(--cream);
-  border-top:3px solid var(--brass-600);box-shadow:0 -10px 34px rgba(24,17,10,.30)}
+  box-shadow:0 -10px 34px rgba(24,17,10,.30)}
 .calcbar-inner{display:flex;align-items:center;gap:20px;padding:12px 22px;flex-wrap:wrap}
 .calcbar-empty{font-family:var(--font-display);font-style:italic;color:var(--forest-200);font-size:14px;padding:8px 0}
 .cb-col{display:flex;flex-direction:column;gap:1px}
